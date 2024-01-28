@@ -72,6 +72,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))

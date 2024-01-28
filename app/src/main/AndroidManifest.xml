@@ -11,10 +11,26 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
+        <activity
+            android:name=".presentation.SensorFreqActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+        <activity
+            android:name=".presentation.DeviceTimeActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+        <activity
+            android:name=".presentation.DeviceNameActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+        <activity
+            android:name=".presentation.ConfigListActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
         <uses-library
             android:name="com.google.android.wearable"
             android:required="true" />
-
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
