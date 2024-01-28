@@ -287,8 +287,8 @@ class MainActivity : ComponentActivity() {
     }
 
     fun setConfigList() {
-//        var intent = Intent(this, ConfigListActivity::class.java)
-//        startActivity(intent)
+        var intent = Intent(this, ConfigListActivity::class.java)
+        startActivity(intent)
     }
 
     // Start foreground service

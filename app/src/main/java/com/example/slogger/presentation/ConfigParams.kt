@@ -3,7 +3,6 @@ package com.example.slogger.presentation
 
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 data class ConfigParams(
     var deviceName:String="None",

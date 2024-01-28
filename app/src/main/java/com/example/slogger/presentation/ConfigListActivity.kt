@@ -112,9 +112,14 @@ class ConfigListActivity : AppCompatActivity() {
 
     private fun saveConfigFile() {
         var file = File(filesDir, configFile)
-        val s = Json.encodeToString(configParams)
-        FileOutputStream(file).use {
-            it.write(s.toByteArray())
+        try {
+            val s = Json.encodeToString(configParams)
+
+            FileOutputStream(file).use {
+                it.write(s.toByteArray())
+            }
+        } catch (e: Exception) {
+            Log.d("error", e.toString())
         }
     }
 
