@@ -353,13 +353,13 @@ private fun SloggerWatchFace(
         }
 
         AppStates.LOGGING -> {
-            colorLogging = MaterialTheme.colors.primary
+            //colorLogging = MaterialTheme.colors.primary
             colorText = Color.Green
             stateText = "Logging"
         }
 
         AppStates.TRANSFER -> {
-            colorTransfer = MaterialTheme.colors.primary
+            //colorTransfer = MaterialTheme.colors.primary
             colorText = Color.Cyan
             stateText = "Uploading"
         }
@@ -388,6 +388,10 @@ private fun SloggerWatchFace(
             // 1. The Start button
             Button(
                 onClick = onStart,
+
+                // The Start button is disabled only when the App state is TRANSFER.
+                enabled = (state == AppStates.IDLE),
+
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = colorLogging
                 )
@@ -405,7 +409,8 @@ private fun SloggerWatchFace(
             Button(
                 onClick = onReset,
 
-                // The Reset button is on when the App state is not IDLE.
+                // The Reset button is disabled if the App state is IDLE;
+                // The Reset button is enabled only when the App state is not IDLE.
                 enabled = (state != AppStates.IDLE),
 
                 colors = ButtonDefaults.buttonColors(
@@ -427,6 +432,10 @@ private fun SloggerWatchFace(
             // 1. The Upload button
             Button(
                 onClick = onUpload,
+
+                // The Upload button is enabled only when the App state is IDLE.
+                enabled = (state == AppStates.IDLE),
+
                 colors = ButtonDefaults.buttonColors(
                     //backgroundColor = MaterialTheme.colors.surface
                     backgroundColor = colorTransfer
@@ -445,6 +454,11 @@ private fun SloggerWatchFace(
             // 2. The Configure button
             Button(
                 onClick = onConfigure,
+
+                // The Configure button is disabled if the App state is not IDLE;
+                // The Configure button is enabled only when the App state is IDLE.
+                enabled = (state == AppStates.IDLE),
+
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.surface
                 )
