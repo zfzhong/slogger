@@ -62,7 +62,6 @@ import kotlin.math.exp
 
 class MainActivity : ComponentActivity() {
     private lateinit var sensorManager: SensorManager
-    private lateinit var viewModel: SloggerViewModel
     private lateinit var scheduler: LoggingScheduler
     private lateinit var sensorAccel: SensorAccelerometer
     private lateinit var sensorGyro: SensorGyroscope
@@ -132,10 +131,9 @@ class MainActivity : ComponentActivity() {
 
         // debug
         //deleteAllFiles()
-        
+
         setContent {
             val _state by appState.collectAsStateWithLifecycle()
-            viewModel = SloggerViewModel(this, sensorManager)
 
             Scaffold(
                 timeText = {
