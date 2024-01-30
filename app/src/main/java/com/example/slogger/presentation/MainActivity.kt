@@ -65,79 +65,22 @@ class MainActivity : ComponentActivity() {
     private lateinit var viewModel: SloggerViewModel
     private lateinit var scheduler: LoggingScheduler
     private lateinit var sensorAccel: SensorAccelerometer
+    private lateinit var sensorGyro: SensorGyroscope
+    private lateinit var sensorHeart: SensorHeart
+
     private lateinit var httpController: HttpController
-
-
-
-    //private lateinit var sensorAccel: SensorAccelerometer
-    private lateinit var accelSensor: Sensor
-    private lateinit var gyroSensor: Sensor
-    private lateinit var heartSensor: Sensor
-
-    private lateinit var accelFile: FileOutputStream
-    private lateinit var gyroFile: FileOutputStream
-    private lateinit var heartFile: FileOutputStream
 
     private lateinit var allFiles: List<File>
 
     private var foregroundServiceOn = false
     private var configFile = "config.txt"
-    lateinit var configParams: ConfigParams
-
-    //private val deviceName = "SAM01"
-    //private val activityName = "Activity"
-    private val sensorAccelType = "Accel"
-    private val sensorGyroType = "Gyro"
-    private val sensorHeartType = "Heart"
-
-    //private val accelFreq = 50
-    //private val gyroFreq = 50
-    //private val heartFreq = 1
-    private var accelRunning = false
-    private var gyroRunning = false
-    private var heartRunning = false
-
-    private var isStartWaiting = false
-    private var isEndWaiting = false
-
-    private lateinit var taskStart: TimerTask
-    private lateinit var taskEnd: TimerTask
-
-    private var accelFileId = 1
-    private var gyroFileId = 1
-    private var heartFileId = 1
-
+    private lateinit var configParams: ConfigParams
 
     private val maxRecordCount = 6000
-    private var accelRecordCount = 0
-    private var gyroRecordCount = 0
-    private var heartRecordCount = 0
-
-    private var accelFileName = ""
-    private var gyroFileName = ""
-    private var heartFileName = ""
-
     private var expId: String = ""
 
     private val _appState = MutableStateFlow(AppStates.IDLE)
-    val appState = _appState.asStateFlow()
-
-    fun resetExperimentParams() {
-        // rest expId
-        expId = ""
-        accelFileId = 1
-        gyroFileId = 1
-        heartFileId = 1
-
-        accelRecordCount = 0
-        gyroRecordCount = 0
-        heartRecordCount = 0
-
-        accelFileName = ""
-        gyroFileName = ""
-        heartFileName = ""
-    }
-
+    private val appState = _appState.asStateFlow()
 
     private fun hasBodySensorsPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -189,8 +132,7 @@ class MainActivity : ComponentActivity() {
 
         // debug
         //deleteAllFiles()
-
-
+        
         setContent {
             val _state by appState.collectAsStateWithLifecycle()
             viewModel = SloggerViewModel(this, sensorManager)
@@ -221,11 +163,9 @@ class MainActivity : ComponentActivity() {
 
 
     private fun createExpId() {
-        if (expId == "") {
-            // Use the current timestamp as expId
-            val ts = System.currentTimeMillis()
-            expId = ts.toString()
-        }
+        // Use the current timestamp as expId
+        val ts = System.currentTimeMillis()
+        expId = ts.toString()
     }
 
     fun loadConfigFile() {
@@ -295,8 +235,8 @@ class MainActivity : ComponentActivity() {
         createExpId()
 
         if (configParams.accelFreq > 0) { startAccel() }
-        //if (configParams.gyroFreq > 0) { startGyro() }
-        //if (configParams.heartFreq > 0) { startHeart() }
+        if (configParams.gyroFreq > 0) { startGyro() }
+        if (configParams.heartFreq > 0) { startHeart() }
     }
 
     fun finishLogging() {
@@ -309,6 +249,8 @@ class MainActivity : ComponentActivity() {
         Log.d("sensor", "stopSensors()")
 
         stopAccel()
+        stopGyro()
+        stopHeart()
     }
 
     private fun startAccel() {
@@ -323,9 +265,47 @@ class MainActivity : ComponentActivity() {
         sensorAccel.start()
     }
 
+
+
     private fun stopAccel() {
         if (this::sensorAccel.isInitialized) {
             sensorAccel.reset()
+        }
+    }
+
+    private fun startGyro() {
+        sensorGyro = SensorGyroscope(
+            this,
+            sensorManager,
+            configParams.deviceName,
+            expId,
+            configParams.gyroFreq,
+            maxRecordCount
+        )
+        sensorGyro.start()
+    }
+
+    private fun stopGyro() {
+        if (this::sensorGyro.isInitialized) {
+            sensorGyro.reset()
+        }
+    }
+
+    private fun startHeart() {
+        sensorHeart = SensorHeart(
+            this,
+            sensorManager,
+            configParams.deviceName,
+            expId,
+            configParams.heartFreq,
+            maxRecordCount
+        )
+        sensorHeart.start()
+    }
+
+    private fun stopHeart() {
+        if (this::sensorHeart.isInitialized) {
+            sensorHeart.reset()
         }
     }
 
@@ -373,6 +353,7 @@ class MainActivity : ComponentActivity() {
         // List all the files in current directory and upload them to the server.
         val excludeConfigFilter = ExcludeConfigFileFilter()
         val files = filesDir.listFiles(excludeConfigFilter)
+        Log.d("Upload", "total files: ${files.size}")
 
         if (files != null) {
             allFiles = files.sortedWith(
@@ -415,7 +396,7 @@ class MainActivity : ComponentActivity() {
         }
 
         val file = allFiles[i]
-        Log.d("Upload", file.name)
+        Log.d("Upload", "$i, ${file.name}")
         lifecycleScope.launch(Dispatchers.IO) {
             httpController.sendFileRequest(file)
             //httpController.sendGetRequest()
@@ -424,6 +405,17 @@ class MainActivity : ComponentActivity() {
 
     private fun finishUploading() {
         _appState.update { AppStates.IDLE}
+    }
+
+    fun deleteAllFiles() {
+        // For debugging purpose
+        var files = filesDir.listFiles()
+        for (file in files!!) {
+            Log.d("filename", file.name)
+            if (file.name != "config.txt") {
+                file.delete()
+            }
+        }
     }
 }
 

@@ -8,7 +8,7 @@ import android.hardware.SensorManager
 import android.util.Log
 import java.io.File
 
-class SensorAccelerometer (
+class SensorGyroscope (
     private val context: Context,
     private val sensorManager: SensorManager,
     private val deviceName: String,
@@ -16,8 +16,8 @@ class SensorAccelerometer (
     private val freq: Int,
     private val maxRecordInFile: Int,
 ) {
-    private val sensorType = "Accel"
-    private var sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
+    private val sensorType = "Gyro"
+    private var sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)!!
     private lateinit var fileHandler: File
 
     private var filename = ""
@@ -28,7 +28,7 @@ class SensorAccelerometer (
 
     private val listener = object: SensorEventListener {
         override fun onSensorChanged(event: SensorEvent?) {
-            if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            if (event?.sensor?.type == Sensor.TYPE_GYROSCOPE) {
 
                 if (currRecordCount == 0) {
                     // 1. Get current wall clock timestamp.
@@ -83,13 +83,13 @@ class SensorAccelerometer (
 
     public fun start() {
         if (isRunning) {
-            throw java.lang.Exception("The Accelerometer is running! Can't start it again!")
+            throw java.lang.Exception("The Gyroscope is running! Can't start it again!")
         }
 
         isRunning = true
 
         try {
-            Log.d("sensor", "start/reg accel sensor")
+            Log.d("sensor", "start/reg gyro sensor")
             // register event to start accelerometer
             sensorManager.registerListener(
                 listener,
@@ -103,7 +103,7 @@ class SensorAccelerometer (
     }
 
     public fun reset() {
-        Log.d("Schedule", "Unregister Accel")
+        Log.d("Schedule", "Unregister Gyro")
         if (isRunning) {
             // Unregister sensor events
             sensorManager.unregisterListener(listener, sensor)

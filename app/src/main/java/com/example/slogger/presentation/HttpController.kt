@@ -30,13 +30,16 @@ class HttpController(
 
 
     private var numOfSentFiles = 0
+    private var numOfFailedFiles = 0
 
 
     fun resetNumOfSentFiles() {
         numOfSentFiles = 0
+        numOfFailedFiles = 0
     }
 
     public final suspend fun sendGetRequest() {
+        // This function is mostly used for debugging network connection
         var client = OkHttpClient.Builder().build()
 
         // Define the URL you want to request
@@ -130,8 +133,10 @@ class HttpController(
         try {
             client.newCall(request).enqueue(object: Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    Log.d(tag, "HTTPS request failed")
-                    e.printStackTrace()
+                    Log.d(tag, "HTTPS request failed, files: $numOfFailedFiles")
+                    //e.printStackTrace()
+                    numOfFailedFiles += 1
+                    activityReference.get()?.uploadNext(numOfSentFiles+numOfFailedFiles)
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -140,7 +145,7 @@ class HttpController(
                         numOfSentFiles += 1
 
                         val activity = activityReference.get()
-                        activity?.uploadNext(numOfSentFiles)
+                        activity?.uploadNext(numOfSentFiles+numOfFailedFiles)
                         //Log.d(tag, "SUCCESS")
 
                         //val responseBody = response.body?.string()

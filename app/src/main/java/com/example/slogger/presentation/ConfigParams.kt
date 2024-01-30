@@ -13,8 +13,8 @@ data class ConfigParams(
     var accelFreq: Int = 0,
     var gyroFreq: Int = 0,
     var heartFreq: Int = 1,
-    //var xferLink: String = "https://weardatadl.com:8443/android_xfer/"
-    var xferLink: String = "http://192.168.1.214:8000/android_xfer/"
+    var xferLink: String = "https://weardatadl.com:8443/android_xfer/"
+    //var xferLink: String = "http://192.168.1.214:8000/android_xfer/"
 ) {
     fun getStartDate():String {
         val day = String.format("%02d", getDay(startDate))
