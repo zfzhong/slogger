@@ -255,6 +255,7 @@ class MainActivity : ComponentActivity() {
         sensorAccel = SensorAccelerometer(
             this,
             sensorManager,
+            Sensor.TYPE_ACCELEROMETER,
             configParams.deviceName,
             expId,
             configParams.accelFreq,
@@ -275,6 +276,7 @@ class MainActivity : ComponentActivity() {
         sensorGyro = SensorGyroscope(
             this,
             sensorManager,
+            Sensor.TYPE_GYROSCOPE,
             configParams.deviceName,
             expId,
             configParams.gyroFreq,
@@ -293,6 +295,7 @@ class MainActivity : ComponentActivity() {
         sensorHeart = SensorHeart(
             this,
             sensorManager,
+            Sensor.TYPE_HEART_RATE,
             configParams.deviceName,
             expId,
             configParams.heartFreq,
