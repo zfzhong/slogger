@@ -3,6 +3,7 @@ package com.example.slogger.presentation
 
 import android.hardware.SensorManager
 import android.util.Log
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
@@ -53,6 +54,11 @@ fun getCurrentESTMilli(): Long {
     // Get the time in milliseconds
 
     return estTime.toInstant().toEpochMilli()
+}
+
+fun getTimeDifferenceInSeconds(now: LocalDateTime, future: LocalDateTime): Long {
+    var duration = Duration.between(now, future)
+    return duration.seconds
 }
 
 fun getTimeDelaySeconds(startDate: Long, startTime: Long): Long {
@@ -146,3 +152,34 @@ fun getSensorMode(freq: Int): Int {
     }
     return mode
 }
+
+fun getYear(yyyymmdd: Int): Int {
+    return yyyymmdd / 10000
+}
+
+fun getMonth(yyyymmdd: Int): Int {
+    val md = yyyymmdd % 10000
+    return md / 100
+}
+
+fun getDay(yyyymmdd: Int): Int {
+    return yyyymmdd % 100
+}
+
+fun getHour(timestamp: Int): Int {
+    return timestamp / 3600
+}
+
+fun getMinute(timestamp: Int): Int {
+    val x = timestamp % 3600
+    return x / 60
+}
+
+fun getSecond(timestamp: Int): Int {
+    return timestamp % 60
+}
+
+
+
+
+

@@ -47,8 +47,8 @@ class ConfigListActivity : AppCompatActivity() {
                 // Handle the result
                 val data: Intent? = result.data
                 val type = data?.getStringExtra("Type").toString()
-                val d = data?.getLongExtra("Date", 0)!!
-                val t = data?.getLongExtra("Timestamp", 0)!!
+                val d = data?.getIntExtra("Date", 0)!!
+                val t = data?.getIntExtra("Timestamp", 0)!!
 
                 Log.d("Debug", "$type, $d, $t")
                 if (type == "Start") {
@@ -175,13 +175,13 @@ class ConfigListActivity : AppCompatActivity() {
             var intent = Intent(this, DeviceTimeActivity::class.java)
 
             intent.putExtra("Type", "Start")
-            intent.putExtra("Year", configParams.getStartYear())
-            intent.putExtra("Month", configParams.getStartMonth())
-            intent.putExtra("Day", configParams.getStartDay())
+            intent.putExtra("Year", getYear(configParams.startDate))
+            intent.putExtra("Month", getMonth(configParams.startDate))
+            intent.putExtra("Day", getDay(configParams.startDate))
 
-            intent.putExtra("Hour", configParams.getStartHour())
-            intent.putExtra("Minute", configParams.getStartMinute())
-            intent.putExtra("Second", configParams.getStartSecond())
+            intent.putExtra("Hour", getHour(configParams.startTimestamp))
+            intent.putExtra("Minute", getMinute(configParams.startTimestamp))
+            intent.putExtra("Second", getSecond(configParams.startTimestamp))
 
             startTimeResultLauncher.launch(intent)
         }
@@ -190,13 +190,13 @@ class ConfigListActivity : AppCompatActivity() {
             var intent = Intent(this, DeviceTimeActivity::class.java)
 
             intent.putExtra("Type", "End")
-            intent.putExtra("Year", configParams.getEndYear())
-            intent.putExtra("Month", configParams.getEndMonth())
-            intent.putExtra("Day", configParams.getEndDay())
+            intent.putExtra("Year", getYear(configParams.endDate))
+            intent.putExtra("Month", getMonth(configParams.endDate))
+            intent.putExtra("Day", getDay(configParams.endDate))
 
-            intent.putExtra("Hour", configParams.getEndHour())
-            intent.putExtra("Minute", configParams.getEndMinute())
-            intent.putExtra("Second", configParams.getEndSecond())
+            intent.putExtra("Hour", getHour(configParams.endTimestamp))
+            intent.putExtra("Minute", getMinute(configParams.endTimestamp))
+            intent.putExtra("Second", getSecond(configParams.endTimestamp))
 
             startTimeResultLauncher.launch(intent)
         }

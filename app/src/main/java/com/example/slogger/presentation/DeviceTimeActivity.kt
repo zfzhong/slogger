@@ -3,7 +3,6 @@ package com.example.slogger.presentation
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
@@ -41,14 +40,12 @@ class DeviceTimeActivity : AppCompatActivity() {
         return "$hh:$mm:$ss"
     }
 
-    private fun genDate(year:Int, month:Int, day:Int): Long {
-        val d = (2000+year) * 10000 + month * 100 + day
-        return d.toLong()
+    private fun genDate(year: Int, month: Int, day: Int): Int {
+        return (2000 + year) * 10000 + month * 100 + day
     }
 
-    private fun genTimestamp(hour: Int, minute: Int, second: Int): Long {
-        val t =  hour * 3600 + minute * 60 + second
-        return t.toLong()
+    private fun genTimestamp(hour: Int, minute: Int, second: Int): Int {
+        return hour * 3600 + minute * 60 + second
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

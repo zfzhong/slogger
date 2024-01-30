@@ -21,17 +21,16 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 
-class HttpController(var xferLink:String) {
-    private var activityReference: WeakReference<MainActivity>? = null
+class HttpController(
+    val activityReference: WeakReference<MainActivity>,
+    var xferLink:String
+) {
     //private val _XFER_URL = "https://weardatadl.com:8443/android_xfer/"
     //private val _XFER_URL = "http://192.168.1.214:8000/android_xfer/"
 
 
     private var numOfSentFiles = 0
 
-    fun setMainActivityReference(activity: MainActivity) {
-        activityReference = WeakReference(activity)
-    }
 
     fun resetNumOfSentFiles() {
         numOfSentFiles = 0
@@ -42,8 +41,8 @@ class HttpController(var xferLink:String) {
 
         // Define the URL you want to request
         //val url = "https://weardatadl.com:8443/api-auth/" // Replace with your API endpoint
-        //var url = "http://192.168.1.214:8000/api-auth/"
-        var url = "https://httpbin.org/get"
+        var url = "http://192.168.1.214:8000/api-auth/"
+        //var url = "https://httpbin.org/get"
 
         // Create a GET request
         val request = Request.Builder()
@@ -51,6 +50,7 @@ class HttpController(var xferLink:String) {
             .build()
 
         var tag = "HTTP-GET"
+        Log.d(tag, "debug ok http")
 
         try {
             val response = client.newCall(request).execute()
@@ -69,6 +69,12 @@ class HttpController(var xferLink:String) {
         }
     }
     public final suspend fun sendFileRequest(file: File) {
+        // Note: Since the SSL certificate of our current server is not
+        // widely accepte, we have to set
+        //    android:usesCleartextTraffic="true"
+        // in the AndroidManifest.xml
+        //
+
         //Log.d("sendFile:", "send file to server")
         // Solve SSL certificate issue (we dont need to verify)
         val customTrustManager = object : X509TrustManager {
@@ -133,7 +139,7 @@ class HttpController(var xferLink:String) {
                     if (response.isSuccessful) {
                         numOfSentFiles += 1
 
-                        val activity = activityReference?.get()
+                        val activity = activityReference.get()
                         activity?.uploadNext(numOfSentFiles)
                         //Log.d(tag, "SUCCESS")
 

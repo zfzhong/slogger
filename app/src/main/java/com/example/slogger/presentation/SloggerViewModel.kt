@@ -4,6 +4,7 @@ package com.example.slogger.presentation
 
 import android.content.Context
 import android.content.Intent
+import android.hardware.SensorManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,68 +20,31 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import androidx.lifecycle.lifecycleScope
+import kotlinx.serialization.json.Json
+import java.io.File
 
 
+class SloggerViewModel(
+    private val context: Context,
+    private val sensorManager: SensorManager
+)
+    : ViewModel()
+{
+    private lateinit var httpController: HttpController
+    private lateinit var sensorAccel: SensorAccelerometer
+    private lateinit var scheduler: LoggingScheduler
 
-class SloggerViewModel(): ViewModel() {
-    private var activityReference: WeakReference<MainActivity>? = null
+
+    private var configFile = "config.txt"
+    private lateinit var configParams: ConfigParams
+
+    private var expId: String = ""
+    private val maxRecordCount = 6000
 
     // Initialize the App state: IDLE
-    var stateText: String = "Idle"
     private val _appState = MutableStateFlow(AppStates.IDLE)
     val appState = _appState.asStateFlow()
 
-
-    fun setMainActivityReference(activity: MainActivity) {
-        activityReference = WeakReference(activity)
-    }
-
-    fun start() {
-        Log.d("debug", "start() called")
-        // Event "Start", fired when the Start button is clicked.
-
-        // 1. Verifying that the App state is IDLE.
-        if (appState.value != AppStates.IDLE) {
-            return
-        }
-
-        // Schedule logging and update the App state
-        _appState.update { AppStates.LOGGING }
-
-        val activity = activityReference?.get()
-    }
-
-    fun upload() {
-        Log.d("debug", "upload() called")
-        // Event "Upload", fired when the Upload button is clicked.
-
-        // 1. Verifying that the App state is IDLE.
-        if (appState.value != AppStates.IDLE) {
-            return
-        }
-
-        _appState.update { AppStates.TRANSFER }
-
-    }
-
-    fun reset() {
-        Log.d("debug", "reset() called")
-        // Event "Reset", fired when the Reset button is clicked.
-
-        // Return if the App state is IDLE
-        if (appState.value == AppStates.IDLE) {
-            return
-        }
-
-        // Reset the App
-
-        // Change the App state to IDLE
-        _appState.update {AppStates.IDLE}
-    }
-
-    fun finishUploading() {
-        reset()
-    }
 
 
 }
