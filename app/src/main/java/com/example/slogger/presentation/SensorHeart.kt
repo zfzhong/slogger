@@ -3,6 +3,7 @@ package com.example.slogger.presentation
 import android.content.Context
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import java.lang.ref.WeakReference
 
 class SensorHeart(
     context: Context,

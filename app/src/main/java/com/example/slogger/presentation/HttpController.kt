@@ -44,7 +44,8 @@ class HttpController(
 
         // Define the URL you want to request
         //val url = "https://weardatadl.com:8443/api-auth/" // Replace with your API endpoint
-        var url = "http://192.168.1.214:8000/api-auth/"
+        //var url = "http://192.168.1.214:8000/api-auth/"
+        var url = "http://127.0.0.1:8000/api-auth/"
         //var url = "https://httpbin.org/get"
 
         // Create a GET request

@@ -1,10 +1,16 @@
 package com.example.slogger.presentation
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.getSystemService
 import java.lang.ref.WeakReference
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Date
 import java.util.Timer
 import java.util.TimerTask
 
@@ -25,83 +31,99 @@ class LoggingScheduler(
         getHour(endTimestamp), getMinute(endTimestamp), getSecond(endTimestamp)
     )
 
-    private lateinit var startTask: TimerTask
-    private lateinit var endTask: TimerTask
+    private lateinit var alarmManager: AlarmManager
+    private lateinit var pendingIntentStart: PendingIntent
+    private lateinit var pendingIntentStop: PendingIntent
 
 
-    private fun scheduleFuture(ms: Long) {
-        Log.d("Schedule", "Start in $ms milliseconds.")
-        val timer = Timer()
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun scheduleStartFuture(ms: Long) {
+        //val action = "StartLogging"
+        //Log.d("Debug", "[$action] starts in $ms milliseconds.")
 
-        // Define your future/start task
-        startTask = object : TimerTask() {
-            override fun run() {
-                scheduleCurrent()
-            }
+        val activity = mainActivity.get()!!
+
+        if (!this::alarmManager.isInitialized) {
+            alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         }
+        val intent = Intent(activity, StartLoggingAlarmReceiver::class.java)
 
-        // Schedule the task to start after the delay
-        timer.schedule(startTask, ms)
-    }
+        // Pass action as extra: StartLogging/StopLogging
+        //intent.putExtra("Action", action)
 
-    private fun scheduleCurrent() {
-        // start sensors
-        mainActivity.get()?.startSensors()
+        pendingIntentStart = PendingIntent.getBroadcast(
+            activity, 0, intent, PendingIntent.FLAG_MUTABLE
+        )
 
-        // Schedule the timeout task
-        val timer = Timer()
-        endTask = object : TimerTask() {
-            override fun run() {
-                Log.d("Schedule", "endTask called -> finishLogging()")
-                mainActivity.get()?.finishLogging()
-            }
+        // Set the alarm to trigger after a specific time
+        val alarmTimeMillis = System.currentTimeMillis() + ms
+
+        if(alarmManager.canScheduleExactAlarms()) {
+            Log.d("Debug", "[StartLogging] starts in $alarmTimeMillis milliseconds.")
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStart)
         }
-
-        val now = LocalDateTime.now()
-        var delay = getTimeDifferenceInSeconds(now, endTime)
-
-        // delay can't be less than 1 second
-        delay = maxOf(delay, 1)
-
-        Log.d("Schedule", "Timeout:$delay")
-        timer.schedule(endTask, delay * 1000)
     }
 
-    fun cancelStartTask() {
-        Log.d("Schedule", "Cancel startTask ...")
-        startTask.cancel()
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun scheduleStopFuture(ms: Long) {
+        //val action = "StopLogging"
+        //Log.d("Debug", "[$action] starts in $ms milliseconds.")
+
+        val activity = mainActivity.get()!!
+
+        if (!this::alarmManager.isInitialized) {
+            alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        }
+        val intent = Intent(activity, StopLoggingAlarmReceiver::class.java)
+
+        // Pass action as extra: StartLogging/StopLogging
+        //intent.putExtra("Action", action)
+
+        pendingIntentStop = PendingIntent.getBroadcast(
+            activity, 0, intent, PendingIntent.FLAG_MUTABLE
+        )
+
+        // Set the alarm to trigger after a specific time
+        val alarmTimeMillis = System.currentTimeMillis() + ms
+
+        if(alarmManager.canScheduleExactAlarms()) {
+            Log.d("Debug", "[StopLogging] starts in $alarmTimeMillis milliseconds.")
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStop)
+        }
     }
 
-    fun cancelEndTask() {
-        Log.d("Schedule", "Cancel endTask ...")
-        endTask.cancel()
+    fun cancelPendingStart() {
+        Log.d("Debug", "cancel pendingStart")
+        alarmManager.cancel(pendingIntentStart)
     }
 
+    fun cancelPendingStop() {
+        Log.d("Debug", "cancel pendingStop")
+        alarmManager.cancel(pendingIntentStop)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
     fun scheduleLogging() {
         val now = LocalDateTime.now()
 
-        Log.d("Schedule", "start:$startDate, "+getHour(startTimestamp)+":"
-                + getMinute(startTimestamp)+":"+ getSecond(startTimestamp)
-        )
-        Log.d("Schedule", "end:$endDate, "+getHour(endTimestamp)+":"
-                + getMinute(endTimestamp)+":"+ getSecond(endTimestamp)
-        )
-        Log.d("Schedule", "now: $now")
+        Log.d("Debug","start: ${startTime}, end: ${endTime}, now: $now")
 
         if (endTime.isBefore(startTime) || endTime.isBefore(now)){
-            // Time configuration wrong. Do nothing.
-
-            //Action: reset()
-            mainActivity.get()?.reset()
-        } else if (now.isBefore(startTime)) {
-            // The startTime is in the future. Start timing.
-            var delay = getTimeDifferenceInSeconds(now, startTime)
-            delay = maxOf(delay, 1)
-
-            scheduleFuture(delay * 1000)
+            // Time configuration wrong. Do nothing. Change state.
+            Log.d("Debug", "Time configured wrong.")
+            mainActivity.get()?.updateState(AppStates.IDLE)
         } else {
-            // Start logging immediately
-            scheduleCurrent()
+            // The startTime is in the future. Start timing.
+            // if delay is 0 or negative, the alarm will be fired immediately.
+
+            //Log.d("Debug", "Schedule in future")
+            var delay = getTimeDifferenceInSeconds(now, startTime)
+            scheduleStartFuture(delay * 1000)
+
+            delay = getTimeDifferenceInSeconds(now, endTime)
+            scheduleStopFuture(delay * 1000)
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.slogger.presentation
 
 import android.content.Context
 import android.hardware.SensorManager
+import java.lang.ref.WeakReference
 
 class SensorAccelerometer(
     context: Context,

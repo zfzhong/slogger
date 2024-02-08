@@ -7,24 +7,23 @@
 package com.example.slogger.presentation
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.SendToMobile
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SendToMobile
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.Composable
@@ -40,7 +39,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.compose.material.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,28 +47,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import java.io.BufferedReader
 import java.io.File
 import java.io.FileFilter
-import java.io.FileOutputStream
-import java.io.InputStreamReader
 import java.lang.ref.WeakReference
-import java.time.LocalDateTime
-import java.util.Timer
-import java.util.TimerTask
-import kotlin.math.exp
+import java.nio.file.StandardWatchEventKinds
+import kotlin.math.log
 
 
 class MainActivity : ComponentActivity() {
-    private lateinit var sensorManager: SensorManager
     private lateinit var scheduler: LoggingScheduler
-    private lateinit var sensorAccel: SensorAccelerometer
-    private lateinit var sensorGyro: SensorGyroscope
-    private lateinit var sensorHeart: SensorHeart
-
     private lateinit var httpController: HttpController
 
     private lateinit var allFiles: List<File>
+
+    //private var debugLogger = DebugLogger(File(filesDir, "debug.log"))
 
     private var foregroundServiceOn = false
     private var configFile = "config.txt"
@@ -80,6 +71,24 @@ class MainActivity : ComponentActivity() {
 
     private val _appState = MutableStateFlow(AppStates.IDLE)
     private val appState = _appState.asStateFlow()
+
+    private val stateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // Handle the received data here
+            val state = intent?.getStringExtra("State")
+            Log.d("Debug", "StateReceiver: "+state.toString())
+
+            if (state == "LOGGING") {
+                _appState.update { AppStates.LOGGING }
+            }
+
+            if (state == "IDLE") {
+                _appState.update { AppStates.IDLE }
+            }
+
+            //updateUI(customArgument)
+        }
+    }
 
     private fun hasBodySensorsPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -107,6 +116,7 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -117,9 +127,9 @@ class MainActivity : ComponentActivity() {
         }
 
         // Load existing configuration parameters
-        loadConfigFile()
+        //loadConfigFile()
 
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        //sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         //accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
         //gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)!!
         //heartSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)!!
@@ -131,6 +141,10 @@ class MainActivity : ComponentActivity() {
 
         // debug
         //deleteAllFiles()
+
+        // Register the BroadcastReceiver
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(stateReceiver, IntentFilter("sensor_status"))
 
         setContent {
             val _state by appState.collectAsStateWithLifecycle()
@@ -150,7 +164,7 @@ class MainActivity : ComponentActivity() {
                 SloggerWatchFace(
                     state = _state,
                     onStart = this::start,
-                    onReset = this::reset,
+                    onReset = this::stop,
                     modifier = Modifier.fillMaxSize(),
                     onUpload = this::upload,
                     onConfigure = this::configure
@@ -160,40 +174,28 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun createExpId() {
-        // Use the current timestamp as expId
-        val ts = System.currentTimeMillis()
-        expId = ts.toString()
-    }
-
-    fun loadConfigFile() {
-        val file = File(filesDir, configFile)
-        configParams = if (file.exists()) {
-            val s = file.bufferedReader().readLine()
-            Json.decodeFromString(s)
-        } else {
-            ConfigParams("None")
-        }
-    }
-
     private fun configure() {
         var intent = Intent(this, ConfigListActivity::class.java)
         startActivity(intent)
     }
 
 
-    fun reset() {
+    private fun stop() {
         // 1. previous state is TIMING
         // -> action: cancel startTask
         if (appState.value == AppStates.TIMING) {
-            scheduler.cancelStartTask()
+            scheduler.cancelPendingStart()
+             scheduler.cancelPendingStop()
         }
 
         // 2. previous state is LOGGING
-        // action: cancel endTask, stop sensors
+        // action: Service stop
         if (appState.value == AppStates.LOGGING) {
-            scheduler.cancelEndTask()
-            stopSensors()
+            val serviceIntent = Intent(this, SensorLoggingService::class.java)
+            serviceIntent.action = SensorLoggingService.Actions.STOP.toString()
+            startService(serviceIntent)
+
+            scheduler.cancelPendingStop()
         }
 
         // 3. If previous state is TRANSFER
@@ -201,12 +203,9 @@ class MainActivity : ComponentActivity() {
         _appState.update { AppStates.IDLE}
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun start() {
         // This function is called immediately when the Start button is clicked.
-
-        // Start foreground service.
-        // Note that we should set permission and SensorLoggingService in the Manifest.xml
-        startForegroundService()
 
         // Load configuration
         loadConfigFile()
@@ -224,122 +223,33 @@ class MainActivity : ComponentActivity() {
         scheduler.scheduleLogging()
     }
 
-    fun startSensors() {
-        Log.d("Schedule", "Start sensors now...")
-
-        _appState.update { AppStates.LOGGING}
-
-        // Create experiment id before starting sensors
-        createExpId()
-
-        if (configParams.accelFreq > 0) { startAccel() }
-        if (configParams.gyroFreq > 0) { startGyro() }
-        if (configParams.heartFreq > 0) { startHeart() }
-    }
-
-    fun finishLogging() {
-        Log.d("Logging", "Finish logging.")
-        stopSensors()
-        _appState.update{AppStates.IDLE}
-    }
-
-    private fun stopSensors() {
-        Log.d("sensor", "stopSensors()")
-
-        stopAccel()
-        stopGyro()
-        stopHeart()
-    }
-
-    private fun startAccel() {
-        sensorAccel = SensorAccelerometer(
-            this,
-            sensorManager,
-            Sensor.TYPE_ACCELEROMETER,
-            configParams.deviceName,
-            expId,
-            configParams.accelFreq,
-            maxRecordCount
-        )
-        sensorAccel.start()
-    }
-
-
-
-    private fun stopAccel() {
-        if (this::sensorAccel.isInitialized) {
-            sensorAccel.reset()
+    private fun loadConfigFile() {
+        val file = File(filesDir, configFile)
+        configParams = if (file.exists()) {
+            val s = file.bufferedReader().readLine()
+            Json.decodeFromString(s)
+        } else {
+            ConfigParams("None")
         }
     }
 
-    private fun startGyro() {
-        sensorGyro = SensorGyroscope(
-            this,
-            sensorManager,
-            Sensor.TYPE_GYROSCOPE,
-            configParams.deviceName,
-            expId,
-            configParams.gyroFreq,
-            maxRecordCount
-        )
-        sensorGyro.start()
-    }
-
-    private fun stopGyro() {
-        if (this::sensorGyro.isInitialized) {
-            sensorGyro.reset()
-        }
-    }
-
-    private fun startHeart() {
-        sensorHeart = SensorHeart(
-            this,
-            sensorManager,
-            Sensor.TYPE_HEART_RATE,
-            configParams.deviceName,
-            expId,
-            configParams.heartFreq,
-            maxRecordCount
-        )
-        sensorHeart.start()
-    }
-
-    private fun stopHeart() {
-        if (this::sensorHeart.isInitialized) {
-            sensorHeart.reset()
-        }
-    }
-
-    private fun startForegroundService() {
-        if (!foregroundServiceOn) {
-            Intent(this, SensorLoggingService::class.java).also {
-                it.action = SensorLoggingService.Actions.START.toString()
-                startService(it)
-            }
-            foregroundServiceOn = true
-        }
+    fun updateState(state: AppStates) {
+        _appState.update { state }
     }
 
     override fun onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(stateReceiver)
         super.onDestroy()
-
-        stopSensors()
-
-        // Stop foreground service
-        Intent(this, SensorLoggingService::class.java).also {
-            it.action = SensorLoggingService.Actions.STOP.toString()
-            startService(it)
-        }
-    }
+}
 
     override fun onPause() {
         super.onPause()
-        Log.d("onPause", "onPause called.")
+        Log.d("Debug","mainActivity: onPause called.")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d("onResume", "onResume called.")
+        Log.d("Debug","mainActivity: onResume called.")
     }
 
 
@@ -354,7 +264,7 @@ class MainActivity : ComponentActivity() {
         // List all the files in current directory and upload them to the server.
         val excludeConfigFilter = ExcludeConfigFileFilter()
         val files = filesDir.listFiles(excludeConfigFilter)
-        Log.d("Upload", "total files: ${files.size}")
+        Log.d("Debug","mainActivity: Upload, total files: ${files.size}")
 
         if (files != null) {
             allFiles = files.sortedWith(
@@ -386,18 +296,18 @@ class MainActivity : ComponentActivity() {
 
     fun uploadNext(i: Int) {
         if (appState.value != AppStates.TRANSFER) {
-            Log.d("Upload", "Uploading aborted.")
+            Log.d("Debug","mainActivity: Uploading aborted.")
             return
         }
 
         if (i >= allFiles.size) {
-            Log.d("Finish Uploading", "uploaded $i Files")
+            Log.d("Debug","mainActivity: Finish Uploading, uploaded $i Files")
             finishUploading()
             return
         }
 
         val file = allFiles[i]
-        Log.d("Upload", "$i, ${file.name}")
+        Log.d("Debug","mainActivity: upload, $i, ${file.name}")
         lifecycleScope.launch(Dispatchers.IO) {
             httpController.sendFileRequest(file)
             //httpController.sendGetRequest()
@@ -412,7 +322,7 @@ class MainActivity : ComponentActivity() {
         // For debugging purpose
         var files = filesDir.listFiles()
         for (file in files!!) {
-            Log.d("filename", file.name)
+            Log.d("Debug","mainActivity: delete, ${file.name}")
             if (file.name != "config.txt") {
                 file.delete()
             }

@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
 import java.io.File
+import java.lang.ref.WeakReference
 
 open class GeneralSensor (
     private val context: Context,
@@ -108,7 +109,7 @@ open class GeneralSensor (
         isRunning = true
 
         try {
-            Log.d("sensor", "start/reg sensor ${getSensorTypeName()}")
+            Log.d("Debug", "start/reg sensor ${getSensorTypeName()}")
             // register event to start accelerometer
             sensorManager.registerListener(
                 listener,
@@ -122,7 +123,8 @@ open class GeneralSensor (
     }
 
     public fun reset() {
-        Log.d("Schedule", "Unregister ${getSensorTypeName()}")
+        Log.d("Debug","Unregister ${getSensorTypeName()}")
+
         if (isRunning) {
             // Unregister sensor events
             sensorManager.unregisterListener(listener, sensor)
