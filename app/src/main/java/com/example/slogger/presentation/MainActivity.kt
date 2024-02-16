@@ -58,16 +58,11 @@ class MainActivity : ComponentActivity() {
     private lateinit var scheduler: LoggingScheduler
     private lateinit var httpController: HttpController
 
-    private lateinit var allFiles: List<File>
-
-    //private var debugLogger = DebugLogger(File(filesDir, "debug.log"))
-
-    private var foregroundServiceOn = false
-    private var configFile = "config.txt"
+    private lateinit var debugLogger: DebugLogger
     private lateinit var configParams: ConfigParams
+    private var configFile = "config.txt"
 
-    private val maxRecordCount = 6000
-    private var expId: String = ""
+    private var allFiles: MutableList<File> = mutableListOf()
 
     private val _appState = MutableStateFlow(AppStates.IDLE)
     private val appState = _appState.asStateFlow()
@@ -76,7 +71,7 @@ class MainActivity : ComponentActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             // Handle the received data here
             val state = intent?.getStringExtra("State")
-            Log.d("Debug", "StateReceiver: "+state.toString())
+            debugLogger.logDebug("Debug", "StateReceiver: "+state.toString())
 
             if (state == "LOGGING") {
                 _appState.update { AppStates.LOGGING }
@@ -116,6 +111,10 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    fun getLogger(): DebugLogger {
+        return debugLogger
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,8 +125,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // Initialize the DebugLogger
+        debugLogger = DebugLogger(filesDir)
+
         // Load existing configuration parameters
-        //loadConfigFile()
+        loadConfigFile()
 
         //sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         //accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
@@ -244,12 +246,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        Log.d("Debug","mainActivity: onPause called.")
+        debugLogger.logDebug("Debug","mainActivity: onPause called.")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d("Debug","mainActivity: onResume called.")
+        debugLogger.logDebug("Debug","mainActivity: onResume called.")
     }
 
 
@@ -261,13 +263,26 @@ class MainActivity : ComponentActivity() {
             httpController = HttpController(WeakReference(this),configParams.xferLink)
         }
 
+        // Everytime the upload() function is called, we reset the numOfSentFiles. So
+        // uploading starts from the very first file, even though that some files might
+        // be uploaded before.
+        httpController.resetNumOfSentFiles()
+        allFiles.clear()
+
+        // Add the app_log.txt
+        var files = filesDir.listFiles()
+        for (file in files) {
+            if (file.name.contains("app_log")) {
+                allFiles.add(file)
+            }
+        }
+
         // List all the files in current directory and upload them to the server.
         val excludeConfigFilter = ExcludeConfigFileFilter()
-        val files = filesDir.listFiles(excludeConfigFilter)
-        Log.d("Debug","mainActivity: Upload, total files: ${files.size}")
+        files = filesDir.listFiles(excludeConfigFilter)
 
         if (files != null) {
-            allFiles = files.sortedWith(
+            var logFiles = files.sortedWith(
                 object : Comparator<File> {
                     override fun compare(f0: File, f1: File): Int {
                         val idx = 4 // file number
@@ -284,30 +299,29 @@ class MainActivity : ComponentActivity() {
                         return -1
                     }
                 })
+            for (file in logFiles) {
+                allFiles.add(file)
+            }
         }
-
-        // Everytime the upload() function is called, we reset the numOfSentFiles. So
-        // uploading starts from the very first file, even though that some files might
-        // be uploaded before.
-        httpController.resetNumOfSentFiles()
 
         uploadNext(0)
     }
 
     fun uploadNext(i: Int) {
         if (appState.value != AppStates.TRANSFER) {
-            Log.d("Debug","mainActivity: Uploading aborted.")
+            debugLogger.logDebug("Debug","mainActivity: Uploading aborted.")
             return
         }
 
         if (i >= allFiles.size) {
-            Log.d("Debug","mainActivity: Finish Uploading, uploaded $i Files")
+            debugLogger.logDebug("Debug","mainActivity: Finish Uploading, uploaded $i Files")
             finishUploading()
             return
         }
 
         val file = allFiles[i]
         Log.d("Debug","mainActivity: upload, $i, ${file.name}")
+
         lifecycleScope.launch(Dispatchers.IO) {
             httpController.sendFileRequest(file)
             //httpController.sendGetRequest()
@@ -322,7 +336,7 @@ class MainActivity : ComponentActivity() {
         // For debugging purpose
         var files = filesDir.listFiles()
         for (file in files!!) {
-            Log.d("Debug","mainActivity: delete, ${file.name}")
+            debugLogger.logDebug("Debug","mainActivity: delete, ${file.name}")
             if (file.name != "config.txt") {
                 file.delete()
             }

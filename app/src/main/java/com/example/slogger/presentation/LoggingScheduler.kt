@@ -59,10 +59,13 @@ class LoggingScheduler(
         val alarmTimeMillis = System.currentTimeMillis() + ms
 
         if(alarmManager.canScheduleExactAlarms()) {
-            Log.d("Debug", "[StartLogging] starts in $alarmTimeMillis milliseconds.")
+            val logger = mainActivity.get()?.getLogger()
+            logger?.logDebug("Debug", "[StartLogging] starts in $alarmTimeMillis milliseconds.")
+            //alarmManager.setExactAndAllowWhileIdle(
             alarmManager.setExact(
                 AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStart)
         }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -88,19 +91,23 @@ class LoggingScheduler(
         val alarmTimeMillis = System.currentTimeMillis() + ms
 
         if(alarmManager.canScheduleExactAlarms()) {
-            Log.d("Debug", "[StopLogging] starts in $alarmTimeMillis milliseconds.")
+            val logger = mainActivity.get()?.getLogger()
+            logger?.logDebug("Debug", "[StopLogging] starts in $alarmTimeMillis milliseconds.")
+            //alarmManager.setExactAndAllowWhileIdle(
             alarmManager.setExact(
                 AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStop)
         }
     }
 
     fun cancelPendingStart() {
-        Log.d("Debug", "cancel pendingStart")
+        val logger = mainActivity.get()?.getLogger()
+        logger?.logDebug("Debug", "cancel pendingStart")
         alarmManager.cancel(pendingIntentStart)
     }
 
     fun cancelPendingStop() {
-        Log.d("Debug", "cancel pendingStop")
+        val logger = mainActivity.get()?.getLogger()
+        logger?.logDebug("Debug", "cancel pendingStop")
         alarmManager.cancel(pendingIntentStop)
     }
 
@@ -108,7 +115,8 @@ class LoggingScheduler(
     fun scheduleLogging() {
         val now = LocalDateTime.now()
 
-        Log.d("Debug","start: ${startTime}, end: ${endTime}, now: $now")
+        val logger = mainActivity.get()?.getLogger()
+        logger?.logDebug("Debug","start: $startTime, end: $endTime")
 
         if (endTime.isBefore(startTime) || endTime.isBefore(now)){
             // Time configuration wrong. Do nothing. Change state.
