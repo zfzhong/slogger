@@ -336,7 +336,7 @@ class MainActivity : ComponentActivity() {
         // For debugging purpose
         var files = filesDir.listFiles()
         for (file in files!!) {
-            debugLogger.logDebug("Debug","mainActivity: delete, ${file.name}")
+            Log.d("Debug","mainActivity: delete, ${file.name}")
             if (file.name != "config.txt") {
                 file.delete()
             }

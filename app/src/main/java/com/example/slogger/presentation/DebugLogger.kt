@@ -14,7 +14,7 @@ import java.io.IOException;
 
 class DebugLogger(val parentDir: File){
     //private val TAG = "DebugLogger"
-    private val LOG_FILE_NAME = "app_log.txt"
+    private val LOG_FILE_NAME = "app_log.csv"
     private val logFile = File(parentDir, LOG_FILE_NAME)
 
     fun logDebug(tag: String, message: String) {
