@@ -55,6 +55,11 @@ open class GeneralSensor (
         override fun onSensorChanged(event: SensorEvent?) {
             if (event?.sensor?.type == type) {
 
+                val s = getValues(event)
+
+                // Heart Rate sensor might report junk data.
+                if (s == "") return
+
                 if (currRecordCount == 0) {
                     // 1. Get current wall clock timestamp.
                     val millis = System.currentTimeMillis().toString()
@@ -72,7 +77,6 @@ open class GeneralSensor (
                     fileHandler = File(context.filesDir, filename)
                 }
 
-                val s = getValues(event)
                 write2File(s)
 
                 currRecordCount += 1

@@ -31,6 +31,10 @@ class SensorHeart(
 
         val x = event.values[0]
 
+        if (x.toInt() == 0) {
+            return ""
+        }
+
         return "$t,$x\n"
     }
 }
