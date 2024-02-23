@@ -183,6 +183,7 @@ class MainActivity : ComponentActivity() {
 
 
     private fun stop() {
+        debugLogger.logDebug("Debug","mainActivity: Stop() called.")
         // 1. previous state is TIMING
         // -> action: cancel startTask
         if (appState.value == AppStates.TIMING) {

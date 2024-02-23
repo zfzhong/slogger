@@ -61,8 +61,7 @@ class LoggingScheduler(
         if(alarmManager.canScheduleExactAlarms()) {
             val logger = mainActivity.get()?.getLogger()
             logger?.logDebug("Debug", "[StartLogging] starts in $alarmTimeMillis milliseconds.")
-            //alarmManager.setExactAndAllowWhileIdle(
-            alarmManager.setExact(
+            alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStart)
         }
 
@@ -93,8 +92,7 @@ class LoggingScheduler(
         if(alarmManager.canScheduleExactAlarms()) {
             val logger = mainActivity.get()?.getLogger()
             logger?.logDebug("Debug", "[StopLogging] starts in $alarmTimeMillis milliseconds.")
-            //alarmManager.setExactAndAllowWhileIdle(
-            alarmManager.setExact(
+            alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStop)
         }
     }
