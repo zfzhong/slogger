@@ -5,7 +5,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorManager
 import java.lang.ref.WeakReference
 
-class SensorHeart(
+class SensorOffbody(
     context: Context,
     sensorManager: SensorManager,
     type: Int,
@@ -22,18 +22,14 @@ class SensorHeart(
     freq,
     maxRecordInFile)
 {
-    // The heart rate sensor differs from Accelerometer/Gyroscope in
+    // The Motion sensor differs from Accelerometer/Gyroscope in
     // the logging file format. We need the following function to get
-    // heart rate readings.
+    // offbody readings.
     override fun getValues(event: SensorEvent): String {
         // Timestamp in nanoseconds
         val t = event.timestamp
 
         val x = event.values[0]
-
-//        if (x.toInt() == 0) {
-//            return ""
-//        }
 
         return "$t,$x\n"
     }

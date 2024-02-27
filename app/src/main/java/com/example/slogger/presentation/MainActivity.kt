@@ -206,12 +206,37 @@ class MainActivity : ComponentActivity() {
         _appState.update { AppStates.IDLE}
     }
 
+    /* getPackageInfo() is deprecated since Android API 33.
+     * The following implementation is from
+     * https://medium.com/make-apps-simple/get-the-android-app-version-programmatically-5ba27d6a37fe
+     */
+    fun getAppVersion(
+        context: Context,
+    ): String ? {
+        return try {
+            val packageManager = context.packageManager
+            val packageName = context.packageName
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                packageManager.getPackageInfo(packageName, 0)
+            }
+            packageInfo.versionName
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     fun start() {
         // This function is called immediately when the Start button is clicked.
 
         // Load configuration
         loadConfigFile()
+
+        val version = getAppVersion(this)
+        debugLogger.logDebug("Debug", "Start Timing ... APP VERSION: $version")
+
 
         // Change state to TIMING
         _appState.update { AppStates.TIMING}

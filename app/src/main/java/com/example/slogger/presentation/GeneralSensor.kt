@@ -35,6 +35,8 @@ open class GeneralSensor (
             return "Gyro"
         } else if (type == Sensor.TYPE_ACCELEROMETER) {
             return "Accel"
+        } else if (type == Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT) {
+            return "Presence" // Fitbit convention
         }
 
         return "Unspecified"

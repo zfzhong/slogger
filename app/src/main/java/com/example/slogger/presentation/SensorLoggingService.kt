@@ -26,6 +26,7 @@ class SensorLoggingService: Service() {
     private lateinit var sensorAccel: SensorAccelerometer
     private lateinit var sensorGyro: SensorGyroscope
     private lateinit var sensorHeart: SensorHeart
+    private lateinit var sensorOffbody: SensorOffbody
 
 
     private var configFile = "config.txt"
@@ -102,6 +103,7 @@ class SensorLoggingService: Service() {
         if (configParams.accelFreq > 0) { startAccel() }
         if (configParams.gyroFreq > 0) { startGyro() }
         if (configParams.heartFreq > 0) { startHeart() }
+        if (configParams.offbodyFreq > 0) { startOffbody() }
     }
 
     private fun stopSensors() {
@@ -109,6 +111,7 @@ class SensorLoggingService: Service() {
         stopAccel()
         stopGyro()
         stopHeart()
+        stopOffbody()
 
         // Change App state to IDLE
         broadcastStateChange(AppStates.IDLE)
@@ -175,6 +178,25 @@ class SensorLoggingService: Service() {
     private fun stopHeart() {
         if (this::sensorHeart.isInitialized) {
             sensorHeart.reset()
+        }
+    }
+
+    private fun startOffbody() {
+        sensorOffbody = SensorOffbody(
+            this,
+            sensorManager,
+            Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT,
+            configParams.deviceName,
+            expId,
+            configParams.offbodyFreq,
+            maxRecordCount
+        )
+        sensorOffbody.start()
+    }
+
+    private fun stopOffbody() {
+        if (this::sensorOffbody.isInitialized) {
+            sensorOffbody.reset()
         }
     }
 

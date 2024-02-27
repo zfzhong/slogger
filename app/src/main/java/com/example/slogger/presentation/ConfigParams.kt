@@ -13,6 +13,7 @@ data class ConfigParams(
     var accelFreq: Int = 0,
     var gyroFreq: Int = 0,
     var heartFreq: Int = 1,
+    var offbodyFreq: Int = 1,
     var xferLink: String = "https://weardatadl.com:8443/android_xfer/"
     //var xferLink: String = "http://192.168.1.214:8000/android_xfer/"
     //var xferLink: String = "http://10.31.23.163:8000/android_xfer/"
