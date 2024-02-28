@@ -3,6 +3,7 @@ package com.example.slogger.presentation
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
@@ -54,7 +55,8 @@ class DeviceTimeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_device_time)
 
         // "StartTime" or "EndTime"
-        panelType = intent.getStringExtra("Type").toString()
+        panelType = intent.getStringExtra("Tag").toString()
+        Log.d("Debug", "panelType: $panelType")
 
 
         year = findViewById(R.id.year)
@@ -124,7 +126,7 @@ class DeviceTimeActivity : AppCompatActivity() {
         saveButton.setOnClickListener{
             var res = Intent()
 
-            res.putExtra("Type", panelType)
+            res.putExtra("Tag", panelType)
 
             val d = genDate(year.value, month.value, day.value)
             res.putExtra("Date", d)

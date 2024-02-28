@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ConfigParams(
     var deviceName:String="None",
+    var protocol:String="None",
     var startDate: Int = 0,
     var startTimestamp: Int = 0,
     var endDate: Int = 0,

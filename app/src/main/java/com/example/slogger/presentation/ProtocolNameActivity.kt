@@ -10,23 +10,23 @@ import android.widget.TextView
 import com.example.slogger.R
 import org.w3c.dom.Text
 
-class DeviceNameActivity : AppCompatActivity() {
+class ProtocolNameActivity : AppCompatActivity() {
     private lateinit var editText: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_device_name)
+        setContentView(R.layout.activity_protocol_name)
 
         // set the view
-        val name = intent.getStringExtra("DeviceName").toString()
-        editText = findViewById(R.id.deviceNameEditText)
+        val name = intent.getStringExtra("Protocol").toString()
+        editText = findViewById(R.id.protocolNameEditText)
         editText.text = name
 
         // event listener
         var saveButton = findViewById<Button>(R.id.saveButton)
         saveButton.setOnClickListener{
             var res = Intent()
-            res.putExtra("DeviceName", editText.text.toString())
+            res.putExtra("Protocol", editText.text.toString())
             setResult(Activity.RESULT_OK, res)
             finish()
         }
