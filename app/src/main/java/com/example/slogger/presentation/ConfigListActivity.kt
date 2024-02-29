@@ -77,19 +77,19 @@ class ConfigListActivity : AppCompatActivity() {
                 val d = data?.getIntExtra("Date", 0)!!
                 val t = data?.getIntExtra("Timestamp", 0)!!
 
-                Log.d("Debug", "$type, $d, $t")
-                configParams.startDate = d
-                configParams.startTimestamp = t
+                //Log.d("Debug", "$type, $d, $t")
+                val hh = String.format("%02d", getHour(t))
+                val mm = String.format("%02d", getMinute(t))
 
-                var i = 2
-                if (type == "EndTime") {
-                    i = 3
+                if (type == "StartTime") {
+                    configParams.startDate = d
+                    configParams.startTimestamp = t
+                    configList[2].value = configParams.getStartDate() + " $hh:$mm"
+                } else if (type == "EndTime") {
+                    configParams.endDate = d
+                    configParams.endTimestamp = t
+                    configList[3].value = configParams.getEndDate() + " $hh:$mm"
                 }
-
-                val startHour = String.format("%02d", getHour(t))
-                val startMinute = String.format("%02d", getMinute(t))
-
-                configList[i].value = configParams.getStartDate() + " $startHour:$startMinute "
 
                 configAdapter.notifyDataSetChanged()
 
@@ -273,16 +273,24 @@ class ConfigListActivity : AppCompatActivity() {
 
         configList = ArrayList()
 
-        val deviceName = ConfigItem("DeviceName", "Device", "")
+        val deviceName = ConfigItem("DeviceName", "Device", configParams.deviceName)
         configList.add(deviceName)
 
-        val protocol = ConfigItem("Protocol", "Protocol", "")
+        val protocol = ConfigItem("Protocol", "Protocol", configParams.protocol)
         configList.add(protocol)
 
-        val startTime = ConfigItem("StartTime", "Start", "YYYY-MM-DD 00:00")
+        var yyyymmdd = configParams.getStartDate()
+        var timestamp = configParams.startTimestamp
+        var hh = String.format("%02d", getHour(timestamp))
+        var mm = String.format("%02d", getMinute(timestamp))
+        val startTime = ConfigItem("StartTime", "Start", "$yyyymmdd $hh:$mm")
         configList.add(startTime)
 
-        val endTime = ConfigItem("EndTime", "End", "YYYY-MM-DD 00:00")
+        yyyymmdd = configParams.getEndDate()
+        timestamp = configParams.endTimestamp
+        hh = String.format("%02d", getHour(timestamp))
+        mm = String.format("%02d", getMinute(timestamp))
+        val endTime = ConfigItem("EndTime", "End", "$yyyymmdd $hh:$mm")
         configList.add(endTime)
 
         val accelFreq = ConfigItem("AccelFreq", "Accel", "0")
@@ -302,15 +310,23 @@ class ConfigListActivity : AppCompatActivity() {
         configAdapter.onItemClick = {
             if (it.tag == "DeviceName") {
                 var intent = Intent(this, DeviceNameActivity::class.java)
-                intent.putExtra("Tag", it.tag)
+                intent.putExtra(it.tag, it.value)
                 deviceNameResultLauncher.launch(intent)
             } else if (it.tag == "Protocol") {
                 var intent = Intent(this, ProtocolNameActivity::class.java)
-                intent.putExtra("Tag", it.tag)
+                intent.putExtra(it.tag, it.value)
                 protocolNameResultLauncher.launch(intent)
-            } else if (it.tag == "StartTime" || it.tag == "EndTime") {
+            } else if (it.tag == "StartTime"){
                 var intent = Intent(this, DeviceTimeActivity::class.java)
                 intent.putExtra("Tag", it.tag)
+                intent.putExtra("Date", configParams.startDate)
+                intent.putExtra("Timestamp", configParams.startTimestamp)
+                startEndTimeResultLauncher.launch(intent)
+            } else if (it.tag == "EndTime") {
+                var intent = Intent(this, DeviceTimeActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Date", configParams.endDate)
+                intent.putExtra("Timestamp", configParams.endTimestamp)
                 startEndTimeResultLauncher.launch(intent)
             }
         }

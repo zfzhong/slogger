@@ -58,43 +58,45 @@ class DeviceTimeActivity : AppCompatActivity() {
         panelType = intent.getStringExtra("Tag").toString()
         Log.d("Debug", "panelType: $panelType")
 
+        var yyyymmdd = intent.getIntExtra("Date",0)
+        var timestamp = intent.getIntExtra("Timestamp",0)
 
         year = findViewById(R.id.year)
         year.minValue=24
         year.maxValue=30
-        year.value = (intent.getIntExtra("Year", 24) % 100)
+        year.value = getYear(yyyymmdd) % 100
 
         year.setFormatter (formatter )
 
         month = findViewById(R.id.month)
         month.minValue = 1
         month.maxValue = 12
-        month.value = intent.getIntExtra("Month", 1)
+        month.value = getMonth(yyyymmdd)
         month.setFormatter (formatter )
 
         day = findViewById(R.id.day)
         day.minValue = 1
         day.maxValue = 31
 
-        day.value = intent.getIntExtra("Day", 1)
+        day.value = getDay(yyyymmdd)
         day.setFormatter (formatter )
 
         hour = findViewById(R.id.hour)
         hour.minValue=0
         hour.maxValue=23
-        hour.value = intent.getIntExtra("Hour", 0)
+        hour.value = getHour(timestamp)
         hour.setFormatter (formatter )
 
         minute = findViewById(R.id.minute)
         minute.minValue = 0
         minute.maxValue = 59
-        minute.value = intent.getIntExtra("Minute", 0)
+        minute.value = getMinute(timestamp)
         minute.setFormatter (formatter )
 
         second = findViewById(R.id.second)
         second.minValue = 0
         second.maxValue = 59
-        second.value = intent.getIntExtra("Second", 0)
+        second.value = getSecond(timestamp)
         second.setFormatter(formatter)
 
         /* Todo
