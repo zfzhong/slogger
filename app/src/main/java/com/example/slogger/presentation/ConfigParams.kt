@@ -17,9 +17,7 @@ data class ConfigParams(
     var offbodyFreq: Int = 0,
     var baseURL: String ="https://weardatadl.com:8443",
     var suffixURL: String = "/android_xfer/",
-    var xferLink: String = "https://weardatadl.com:8443/android_xfer/"
-    //var xferLink: String = "http://192.168.1.214:8000/android_xfer/"
-    //var xferLink: String = "http://10.31.23.163:8000/android_xfer/"
+    var lastUploadedCount:Int = 0
 ) {
     fun getServerURL(): String {
         return baseURL + suffixURL

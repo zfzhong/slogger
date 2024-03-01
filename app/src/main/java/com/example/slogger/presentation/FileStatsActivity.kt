@@ -12,10 +12,17 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.slogger.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.w3c.dom.Text
+import java.io.File
+import java.io.FileOutputStream
 
 class FileStatsActivity : AppCompatActivity() {
     private lateinit var editText: TextView
+    private lateinit var configParams: ConfigParams
+    private var configFile = "config.txt"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
@@ -45,6 +52,8 @@ class FileStatsActivity : AppCompatActivity() {
         editText = findViewById(R.id.fileStatsTextView)
         editText.text = data
 
+        loadConfigFile()
+
         // event listener
         var saveButton = findViewById<Button>(R.id.saveButton)
         saveButton.setOnClickListener{
@@ -52,7 +61,13 @@ class FileStatsActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK, res)
 
             val alertDialogBuilder = AlertDialog.Builder(this@FileStatsActivity)
-            alertDialogBuilder.setMessage("Delete all files?")
+
+            if (configParams.lastUploadedCount < accelFileCount + gyroFileCount + heartFileCount + bodyFileCount + 1) {
+                alertDialogBuilder.setMessage("Delete? Some files are not uploaded!")
+            } else {
+                alertDialogBuilder.setMessage("Delete all files?")
+            }
+
             alertDialogBuilder.setPositiveButton("Yes") { _,_ ->
                 var files = filesDir.listFiles()
                 for (file in files!!) {
@@ -60,6 +75,9 @@ class FileStatsActivity : AppCompatActivity() {
                         file.delete()
                     }
                 }
+                configParams.lastUploadedCount = 0
+                saveConfigFile()
+
                 Toast.makeText(this@FileStatsActivity, "Deletion completed", Toast.LENGTH_SHORT).show()
                 finish()
             }
@@ -78,6 +96,29 @@ class FileStatsActivity : AppCompatActivity() {
             if (file.name != "config.txt") {
                 file.delete()
             }
+        }
+    }
+
+    private fun saveConfigFile() {
+        var file = File(filesDir, configFile)
+        try {
+            val s = Json.encodeToString(configParams)
+
+            FileOutputStream(file).use {
+                it.write(s.toByteArray())
+            }
+        } catch (e: Exception) {
+            Log.d("error", e.toString())
+        }
+    }
+
+    private fun loadConfigFile() {
+        val file = File(filesDir, configFile)
+        configParams = if (file.exists()) {
+            val s = file.bufferedReader().readLine()
+            Json.decodeFromString(s)
+        } else {
+            ConfigParams("None")
         }
     }
 }

@@ -47,9 +47,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileFilter
+import java.io.FileOutputStream
 import java.lang.ref.WeakReference
 import java.nio.file.StandardWatchEventKinds
 import kotlin.math.log
@@ -352,6 +354,10 @@ class MainActivity : ComponentActivity() {
 
         if (i >= allFiles.size) {
             debugLogger.logDebug("Debug","mainActivity: Finish Uploading, uploaded $i Files")
+
+            configParams.lastUploadedCount = i
+            saveConfigFile()
+
             finishUploading()
             return
         }
@@ -362,6 +368,19 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             httpController.sendFileRequest(file)
             //httpController.sendGetRequest()
+        }
+    }
+
+    private fun saveConfigFile() {
+        var file = File(filesDir, configFile)
+        try {
+            val s = Json.encodeToString(configParams)
+
+            FileOutputStream(file).use {
+                it.write(s.toByteArray())
+            }
+        } catch (e: Exception) {
+            Log.d("error", e.toString())
         }
     }
 
