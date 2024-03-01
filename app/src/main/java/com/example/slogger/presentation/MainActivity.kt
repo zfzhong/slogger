@@ -14,6 +14,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -125,11 +126,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Initialize the DebugLogger
-        debugLogger = DebugLogger(filesDir)
 
         // Load existing configuration parameters
         loadConfigFile()
+
+        // Initialize the DebugLogger
+        debugLogger = DebugLogger(filesDir, configParams.deviceName)
 
         //sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         //accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
@@ -227,6 +229,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    fun getBatteryLevel(): Int {
+        val bm = applicationContext.getSystemService(BATTERY_SERVICE) as BatteryManager
+
+        // Get the battery percentage and store it in a INT variable
+        return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     fun start() {
         // This function is called immediately when the Start button is clicked.
@@ -235,7 +244,8 @@ class MainActivity : ComponentActivity() {
         loadConfigFile()
 
         val version = getAppVersion(this)
-        debugLogger.logDebug("Debug", "Start Timing ... APP VERSION: $version")
+        val bl = getBatteryLevel()
+        debugLogger.logDebug("Debug", "Start Timing ... APP VERSION: $version; Battery: $bl%.")
 
 
         // Change state to TIMING
