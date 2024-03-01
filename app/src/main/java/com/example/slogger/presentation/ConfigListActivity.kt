@@ -92,7 +92,6 @@ class ConfigListActivity : AppCompatActivity() {
                 }
 
                 configAdapter.notifyDataSetChanged()
-
                 saveConfigFile()
             }
         }
@@ -103,20 +102,62 @@ class ConfigListActivity : AppCompatActivity() {
                 // Handle the result
                 val data: Intent? = result.data
 
-                val type = data?.getStringExtra("Type").toString()
-                if (type == "Accel") {
-                    configParams.accelFreq = data?.getIntExtra("Freq", 0)!!
-                    setAccelView()
+                val tag = data?.getStringExtra("Tag").toString()
+                val freq = data?.getIntExtra("Freq", 0)!!
+
+                /* The design decision for sensor MODE/FREQUENCIES:
+                 * 1) in the config file, we store the frequencies. The frequency number
+                 * is used to generate log file name and the log files are uploaded to server,
+                 * where the processing scripts read the filenames. We don't want to change
+                 * the filenames, because this will affect the server scripts.
+                 * 2) Instead, we use Mode to display on the wearable Apps, and we store the
+                 * corresponding frequencies in the config file. This requires conversion:
+                 * freq2mode(), mode2freq(), etc.
+                 */
+                //Log.d("Debug", "$tag, $freq")
+
+                if (tag == "AccelFreq") {
+                    configParams.accelFreq = freq
+                    configList[4].value = freq2mode(freq)
+                } else if (tag == "GyroFreq") {
+                    configParams.gyroFreq = freq
+                    configList[5].value = freq2mode(freq)
+                } else if (tag == "HeartFreq") {
+                    configParams.heartFreq = freq
+                    configList[6].value = freq2mode(freq)
+                } else if (tag == "OffBodyFreq") {
+                    configParams.offbodyFreq = freq
+                    configList[7].value = freq2mode(freq)
                 }
-                if (type == "Gyro") {
-                    configParams.gyroFreq = data?.getIntExtra("Freq", 0)!!
-                    //configParams.heartFreq = data?.getIntExtra("HeartFreq", 0)!!
-                    setGyroView()
-                }
+
+                configAdapter.notifyDataSetChanged()
                 saveConfigFile()
             }
         }
 
+    private val serverResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Handle the result
+                val data: Intent? = result.data
+                configParams.baseURL = data?.getStringExtra("BaseURL").toString()
+                configParams.suffixURL = data?.getStringExtra("SuffixURL").toString()
+
+                if (configParams.baseURL != "") {
+                    configList[8].value = "https"
+                    configAdapter.notifyDataSetChanged()
+                }
+
+                saveConfigFile()
+            }
+        }
+
+    private val fileStatsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Handle the result
+            }
+        }
     /*
     private val httpXferResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -166,16 +207,16 @@ class ConfigListActivity : AppCompatActivity() {
         startTimeView.text = "Start: $startDate $startTime"
     }
 
-    private fun setAccelView() {
-        val accelFreq = configParams.accelFreq
-
-        accelView.text = "Accel: $accelFreq Hz"
-    }
-    private fun setGyroView() {
-        val gyroFreq = configParams.gyroFreq
-
-        gyroView.text = "Gyro: $gyroFreq Hz"
-    }
+//    private fun setAccelView() {
+//        val accelFreq = configParams.accelFreq
+//
+//        accelView.text = "Accel: $accelFreq Hz"
+//    }
+//    private fun setGyroView() {
+//        val gyroFreq = configParams.gyroFreq
+//
+//        gyroView.text = "Gyro: $gyroFreq Hz"
+//    }
 
     private fun setEndTimeView() {
         val endDate = configParams.getEndDate()
@@ -194,8 +235,8 @@ class ConfigListActivity : AppCompatActivity() {
         setNameView()
         setStartTimeView()
         setEndTimeView()
-        setAccelView()
-        setGyroView()
+        //setAccelView()
+        //setGyroView()
 
         nameView.setOnClickListener {
             var intent = Intent(this, DeviceNameActivity::class.java)
@@ -236,7 +277,7 @@ class ConfigListActivity : AppCompatActivity() {
         accelView.setOnClickListener {
             var intent = Intent(this, SensorFreqActivity::class.java)
             intent.putExtra("Type", "Accel")
-            intent.putExtra("Freq", configParams.accelFreq)
+            //intent.putExtra("Freq", configParams.accelFreq)
             //intent.putExtra("HeartFreq", configParams.heartFreq)
             sensorFreqResultLauncher.launch(intent)
         }
@@ -244,7 +285,7 @@ class ConfigListActivity : AppCompatActivity() {
         gyroView.setOnClickListener {
             var intent = Intent(this, SensorFreqActivity::class.java)
             intent.putExtra("Type", "Gyro")
-            intent.putExtra("Freq", configParams.gyroFreq)
+            //intent.putExtra("Freq", configParams.gyroFreq)
             //intent.putExtra("HeartFreq", configParams.heartFreq)
             sensorFreqResultLauncher.launch(intent)
         }
@@ -293,16 +334,31 @@ class ConfigListActivity : AppCompatActivity() {
         val endTime = ConfigItem("EndTime", "End", "$yyyymmdd $hh:$mm")
         configList.add(endTime)
 
-        val accelFreq = ConfigItem("AccelFreq", "Accel", "0")
+        var freq = configParams.accelFreq
+        val accelFreq = ConfigItem("AccelFreq", "Accel", freq2mode(freq))
         configList.add(accelFreq)
 
-        val gyroFreq = ConfigItem("GyroFreq", "Gyro", "0")
+        freq = configParams.gyroFreq
+        val gyroFreq = ConfigItem("GyroFreq", "Gyro", freq2mode(freq))
         configList.add(gyroFreq)
 
-        val heartFreq = ConfigItem("HeartFreq", "Heart", "0")
+        freq = configParams.heartFreq
+        val heartFreq = ConfigItem("HeartFreq", "Heart", freq2mode(freq))
         configList.add(heartFreq)
 
-        val fileStats = ConfigItem("FileStats", "Files", "0")
+        freq = configParams.offbodyFreq
+        val offBodyFreq = ConfigItem("OffBodyFreq", "OffBody", freq2mode(freq))
+        configList.add(offBodyFreq)
+
+        val baseURL = configParams.baseURL
+        val serverInfo = ConfigItem("Server", "Server", "")
+        if (baseURL != "") {
+            serverInfo.value = "https"
+        }
+        configList.add(serverInfo)
+
+        var files = filesDir.listFiles()
+        val fileStats = ConfigItem("FileStats", "Files", files.size.toString())
         configList.add(fileStats)
 
         configAdapter = ConfigAdapter(configList)
@@ -328,6 +384,36 @@ class ConfigListActivity : AppCompatActivity() {
                 intent.putExtra("Date", configParams.endDate)
                 intent.putExtra("Timestamp", configParams.endTimestamp)
                 startEndTimeResultLauncher.launch(intent)
+            } else if (it.tag == "AccelFreq") {
+                var intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.accelFreq)
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "GyroFreq") {
+                var intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.gyroFreq)
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "HeartFreq") {
+                var intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.heartFreq)
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "OffBodyFreq") {
+                var intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.offbodyFreq)
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "Server") {
+                var intent = Intent(this, ConfigServerActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("BaseURL", configParams.baseURL)
+                intent.putExtra("SuffixURL", configParams.suffixURL)
+                serverResultLauncher.launch(intent)
+            }else if (it.tag == "FileStats") {
+                var intent = Intent(this, FileStatsActivity::class.java)
+                //intent.putExtra("FileStats", configParams.getFileStats())
+                fileStatsLauncher.launch(intent)
             }
         }
 

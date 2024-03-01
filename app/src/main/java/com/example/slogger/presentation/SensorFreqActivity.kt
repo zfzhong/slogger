@@ -12,6 +12,8 @@ import android.widget.TextView
 import com.example.slogger.R
 
 class SensorFreqActivity : AppCompatActivity() {
+    public lateinit var freqs: Array<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.DropDownTheme)
         super.onCreate(savedInstanceState)
@@ -20,39 +22,35 @@ class SensorFreqActivity : AppCompatActivity() {
         val titleView = findViewById<TextView>(R.id.title)
         val autoSensorView = findViewById<AutoCompleteTextView>(R.id.sensor)
 
-        val type = intent.getStringExtra("Type").toString()
+        val tag = intent.getStringExtra("Tag").toString()
         val freq  = intent.getIntExtra("Freq", 0)
-        val mode = freq2mode(freq)
 
-        if (type == "Accel") {
+        if (tag == "AccelFreq") {
             titleView.text = "Accelerometer"
-            // set dropdown menu for Accel
-            val freqs1 = resources.getStringArray(R.array.accel_freqs)
-            val arrayAdapter1 = ArrayAdapter(this, R.layout.dropdown_item, freqs1)
-
-            autoSensorView.setAdapter(arrayAdapter1)
-            autoSensorView.setText(mode, false)
-        }
-
-        if (type == "Gyro") {
+            freqs = resources.getStringArray(R.array.accel_freqs)
+        } else if (tag == "GyroFreq") {
             titleView.text = "Gyroscope"
-            // set dropdown menu for Gyro
-            val freqs2 = resources.getStringArray(R.array.gyro_freqs)
-            val arrayAdapter2 = ArrayAdapter(this, R.layout.dropdown_item, freqs2)
-
-            autoSensorView.setAdapter(arrayAdapter2)
-            autoSensorView.setText(mode, false)
+            freqs = resources.getStringArray(R.array.gyro_freqs)
+        } else if (tag == "HeartFreq") {
+            titleView.text = "Heart"
+            freqs = resources.getStringArray(R.array.heart_freqs)
+        } else if (tag == "OffBodyFreq") {
+            titleView.text = "OffBody"
+            freqs = resources.getStringArray(R.array.offbody_freqs)
         }
+
+        val arrayAdapter = ArrayAdapter(this, R.layout.dropdown_item, freqs)
+        autoSensorView.setAdapter(arrayAdapter)
+        autoSensorView.setText(freq2mode(freq), false)
 
         val button = findViewById<Button>(R.id.freqButton)
         button.setOnClickListener {
             var res = Intent()
-
-            res.putExtra("Type", type)
+            res.putExtra("Tag", tag)
 
             val mode = autoSensorView.text.toString()
-            val freq = mode2freq(mode)
-            res.putExtra("Freq", freq)
+            res.putExtra("Freq", mode2freq(mode, tag))
+
             setResult(Activity.RESULT_OK, res)
 
             finish()
