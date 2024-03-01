@@ -19,7 +19,8 @@ import java.util.Date
  * He is the boss. So here it is.
  */
 fun genLogFileName(
-    deviceName: String, // "PIX014_Sleep"
+    deviceName: String, // "PIX014"
+    protocol: String, // "Sleep", "PA"
     sensorType: String, // "Heart", "Accel"
     freq: Int, // 50, 1
     fileId: Int, // 1,2,3,...
@@ -27,7 +28,7 @@ fun genLogFileName(
     millis: String //"1698278400254"
 ): String {
 
-    return deviceName + "_" + sensorType + "_" +
+    return deviceName + "_" + protocol + "_" + sensorType + "_" +
             freq.toString() + "_" + fileId.toString() + "_" + expId + "_" + millis +".csv"
     //return "PIX014_Sleep_Heart_50_1_1698278400157_1698278400254.csv"
 }

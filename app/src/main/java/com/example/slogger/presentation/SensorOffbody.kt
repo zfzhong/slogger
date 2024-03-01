@@ -10,6 +10,7 @@ class SensorOffbody(
     sensorManager: SensorManager,
     type: Int,
     deviceName: String,
+    protocol: String,
     expId: String,
     freq: Int,
     maxRecordInFile: Int
@@ -18,6 +19,7 @@ class SensorOffbody(
     sensorManager,
     type,
     deviceName,
+    protocol,
     expId,
     freq,
     maxRecordInFile)

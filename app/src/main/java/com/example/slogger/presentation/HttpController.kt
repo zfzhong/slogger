@@ -25,10 +25,6 @@ class HttpController(
     val activityReference: WeakReference<MainActivity>,
     var xferLink:String
 ) {
-    //private val _XFER_URL = "https://weardatadl.com:8443/android_xfer/"
-    //private val _XFER_URL = "http://192.168.1.214:8000/android_xfer/"
-
-
     private var numOfSentFiles = 0
     private var numOfFailedFiles = 0
 
@@ -74,7 +70,7 @@ class HttpController(
     }
     public final suspend fun sendFileRequest(file: File) {
         // Note: Since the SSL certificate of our current server is not
-        // widely accepte, we have to set
+        // widely accepted, we have to set
         //    android:usesCleartextTraffic="true"
         // in the AndroidManifest.xml
         //

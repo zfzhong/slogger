@@ -286,7 +286,7 @@ class MainActivity : ComponentActivity() {
 
         // Initialize httpController
         if (!this::httpController.isInitialized) {
-            httpController = HttpController(WeakReference(this),configParams.xferLink)
+            httpController = HttpController(WeakReference(this),configParams.getServerURL())
         }
 
         // Everytime the upload() function is called, we reset the numOfSentFiles. So
@@ -298,6 +298,7 @@ class MainActivity : ComponentActivity() {
         // Add the app_log.txt
         var files = filesDir.listFiles()
         for (file in files) {
+            //Log.d("Debug", file.name)
             if (file.name.contains("app_log")) {
                 allFiles.add(file)
             }

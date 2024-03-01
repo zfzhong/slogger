@@ -143,19 +143,22 @@ class ConfigListActivity : AppCompatActivity() {
                 configParams.baseURL = data?.getStringExtra("BaseURL").toString()
                 configParams.suffixURL = data?.getStringExtra("SuffixURL").toString()
 
+                saveConfigFile()
+
                 if (configParams.baseURL != "") {
-                    configList[8].value = "https"
+                    configList[8].value = configParams.getBaseDomain()
                     configAdapter.notifyDataSetChanged()
                 }
-
-                saveConfigFile()
             }
         }
 
     private val fileStatsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                // Handle the result
+                //Log.d("Debug", "deletion finished.")
+                val files = filesDir.listFiles()
+                configList[9].value = files.size.toString()
+                configAdapter.notifyDataSetChanged()
             }
         }
     /*
@@ -353,7 +356,7 @@ class ConfigListActivity : AppCompatActivity() {
         val baseURL = configParams.baseURL
         val serverInfo = ConfigItem("Server", "Server", "")
         if (baseURL != "") {
-            serverInfo.value = "https"
+            serverInfo.value = configParams.getBaseDomain()
         }
         configList.add(serverInfo)
 

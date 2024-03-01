@@ -21,6 +21,18 @@ data class ConfigParams(
     //var xferLink: String = "http://192.168.1.214:8000/android_xfer/"
     //var xferLink: String = "http://10.31.23.163:8000/android_xfer/"
 ) {
+    fun getServerURL(): String {
+        return baseURL + suffixURL
+    }
+
+    fun getBaseDomain(): String{
+        val tokens = baseURL.split(":")
+        if (tokens.size > 1) {
+            return tokens[1]
+        }
+        return ""
+    }
+
     fun getStartDate():String {
         val day = String.format("%02d", getDay(startDate))
         val month = String.format("%02d", getMonth(startDate))

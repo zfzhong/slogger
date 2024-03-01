@@ -2,12 +2,16 @@ package com.example.slogger.presentation
 
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import com.example.slogger.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.w3c.dom.Text
 
 class FileStatsActivity : AppCompatActivity() {
@@ -44,10 +48,36 @@ class FileStatsActivity : AppCompatActivity() {
         // event listener
         var saveButton = findViewById<Button>(R.id.saveButton)
         saveButton.setOnClickListener{
-            //var res = Intent()
-            //res.putExtra("FileStats", editText.text.toString())
-            //setResult(Activity.RESULT_OK, res)
-            finish()
+            var res = Intent()
+            setResult(Activity.RESULT_OK, res)
+
+            val alertDialogBuilder = AlertDialog.Builder(this@FileStatsActivity)
+            alertDialogBuilder.setMessage("Delete all files?")
+            alertDialogBuilder.setPositiveButton("Yes") { _,_ ->
+                var files = filesDir.listFiles()
+                for (file in files!!) {
+                    if (file.name != "config.txt") {
+                        file.delete()
+                    }
+                }
+                Toast.makeText(this@FileStatsActivity, "Deletion completed", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            alertDialogBuilder.setNegativeButton("Cancel") {_,_ ->
+                Toast.makeText(this@FileStatsActivity, "Deletion canceled", Toast.LENGTH_SHORT).show()
+            }
+
+            val alertDialogBox = alertDialogBuilder.create()
+            alertDialogBox.show()
+        }
+    }
+
+    fun deleteAllFiles() {
+        var files = filesDir.listFiles()
+        for (file in files!!) {
+            if (file.name != "config.txt") {
+                file.delete()
+            }
         }
     }
 }

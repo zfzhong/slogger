@@ -15,6 +15,7 @@ open class GeneralSensor (
     private val sensorManager: SensorManager,
     private val type: Int,
     private val deviceName: String,
+    private val protocol: String,
     private val expId: String,
     private val freq: Int,
     private val maxRecordInFile: Int,
@@ -69,6 +70,7 @@ open class GeneralSensor (
                     // 2. Create a new file for storing logging data.
                     filename = genLogFileName(
                         deviceName,
+                        protocol,
                         getSensorTypeName(),
                         freq,
                         fileSeqNum,
