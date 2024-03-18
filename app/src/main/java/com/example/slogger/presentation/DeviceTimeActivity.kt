@@ -56,7 +56,7 @@ class DeviceTimeActivity : AppCompatActivity() {
 
         // "StartTime" or "EndTime"
         panelType = intent.getStringExtra("Tag").toString()
-        Log.d("Debug", "panelType: $panelType")
+        //Log.d("Debug", "panelType: $panelType")
 
         var yyyymmdd = intent.getIntExtra("Date",0)
         var timestamp = intent.getIntExtra("Timestamp",0)
