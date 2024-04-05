@@ -1,6 +1,7 @@
 package com.example.slogger.presentation
 
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -111,7 +112,7 @@ class ConfigListActivity : AppCompatActivity() {
     }
 
     private fun saveConfigFile() {
-        var file = File(filesDir, configFile)
+        val file = File(filesDir, configFile)
         try {
             val s = Json.encodeToString(configParams)
 
@@ -123,28 +124,33 @@ class ConfigListActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setNameView() {
         val name = configParams.deviceName
         nameView.text = "Name: $name"
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setStartTimeView() {
         val startDate = configParams.getStartDate()
         val startTime = configParams.getStartTime()
         startTimeView.text = "Start: $startDate $startTime"
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setAccelView() {
         val accelFreq = configParams.accelFreq
 
         accelView.text = "Accel: $accelFreq Hz"
     }
+    @SuppressLint("SetTextI18n")
     private fun setGyroView() {
         val gyroFreq = configParams.gyroFreq
 
         gyroView.text = "Gyro: $gyroFreq Hz"
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setEndTimeView() {
         val endDate = configParams.getEndDate()
         val endTime = configParams.getEndTime()
