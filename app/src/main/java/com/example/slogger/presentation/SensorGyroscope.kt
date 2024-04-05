@@ -9,6 +9,7 @@ class SensorGyroscope(
     sensorManager: SensorManager,
     type: Int,
     deviceName: String,
+    protocol: String,
     expId: String,
     freq: Int,
     maxRecordInFile: Int
@@ -17,6 +18,7 @@ class SensorGyroscope(
     sensorManager,
     type,
     deviceName,
+    protocol,
     expId,
     freq,
     maxRecordInFile)

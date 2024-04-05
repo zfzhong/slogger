@@ -3,6 +3,7 @@ package com.example.slogger.presentation
 
 import android.hardware.SensorManager
 import android.util.Log
+import java.lang.Exception
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,7 +19,8 @@ import java.util.Date
  * He is the boss. So here it is.
  */
 fun genLogFileName(
-    deviceName: String, // "PIX014_Sleep"
+    deviceName: String, // "PIX014"
+    protocol: String, // "Sleep", "PA"
     sensorType: String, // "Heart", "Accel"
     freq: Int, // 50, 1
     fileId: Int, // 1,2,3,...
@@ -26,7 +28,7 @@ fun genLogFileName(
     millis: String //"1698278400254"
 ): String {
 
-    return deviceName + "_" + sensorType + "_" +
+    return deviceName + "_" + protocol + "_" + sensorType + "_" +
             freq.toString() + "_" + fileId.toString() + "_" + expId + "_" + millis +".csv"
     //return "PIX014_Sleep_Heart_50_1_1698278400157_1698278400254.csv"
 }
@@ -104,17 +106,19 @@ fun getLocalSecondLevelTimestamp(): Int {
 }
 
 
-fun mode2freq(x: String): Int {
-    if (x == "Normal") {
-        return 5 // 200 ms
-    }
-    if (x == "UI") {
+fun mode2freq(x: String, sensorTag: String): Int {
+    if (x == "Off") {
+        return 0
+    } else if (x == "Normal") {
+        if (sensorTag == "Heart" || sensorTag == "OffBody") {
+            return 1
+        }
+        return 5// 200 ms
+    } else if (x == "UI") {
         return 16 // 60 ms
-    }
-    if (x == "Game") {
+    } else if (x == "Game") {
         return 50 // 20 ms
-    }
-    if (x == "Fastest") {
+    } else if (x == "Fastest") {
         return 100 // should be >= 100 Hz
     }
 
@@ -122,16 +126,15 @@ fun mode2freq(x: String): Int {
 }
 
 fun freq2mode(i: Int): String {
-    if (i == 5) {
+    if (i == 0) {
+        return "Off"
+    } else if (i <= 5) {
         return "Normal"
-    }
-    if (i == 16) {
+    } else if (i == 16) {
         return "UI"
-    }
-    if (i == 50) {
+    } else if (i == 50) {
         return "Game"
-    }
-    if (i == 100) {
+    } else if (i == 100) {
         return "Fastest"
     }
     return "None"
@@ -151,6 +154,20 @@ fun getSensorMode(freq: Int): Int {
         mode = SensorManager.SENSOR_DELAY_FASTEST
     }
     return mode
+}
+
+fun getSensorMode(mode: String): Int {
+    if (mode == "Normal") {
+        return SensorManager.SENSOR_DELAY_NORMAL
+    } else if (mode == "UI") {
+        return SensorManager.SENSOR_DELAY_UI
+    } else if (mode == "Game") {
+        return SensorManager.SENSOR_DELAY_GAME
+    } else if (mode == "Fastest") {
+        return SensorManager.SENSOR_DELAY_FASTEST
+    }
+
+    throw Exception("Undefined sensor Mode: $mode")
 }
 
 fun getYear(yyyymmdd: Int): Int {

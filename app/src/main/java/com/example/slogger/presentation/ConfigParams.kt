@@ -6,18 +6,31 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ConfigParams(
     var deviceName:String="None",
+    var protocol:String="None",
     var startDate: Int = 0,
     var startTimestamp: Int = 0,
     var endDate: Int = 0,
     var endTimestamp: Int = 0,
     var accelFreq: Int = 0,
     var gyroFreq: Int = 0,
-    var heartFreq: Int = 1,
-    var offbodyFreq: Int = 1,
-    var xferLink: String = "https://weardatadl.com:8443/android_xfer/"
-    //var xferLink: String = "http://192.168.1.214:8000/android_xfer/"
-    //var xferLink: String = "http://10.31.23.163:8000/android_xfer/"
+    var heartFreq: Int = 0,
+    var offbodyFreq: Int = 0,
+    var baseURL: String ="https://weardatadl.com:8443",
+    var suffixURL: String = "/android_xfer/",
+    var lastUploadedCount:Int = 0
 ) {
+    fun getServerURL(): String {
+        return baseURL + suffixURL
+    }
+
+    fun getBaseDomain(): String{
+        val tokens = baseURL.split(":")
+        if (tokens.size > 1) {
+            return tokens[1]
+        }
+        return ""
+    }
+
     fun getStartDate():String {
         val day = String.format("%02d", getDay(startDate))
         val month = String.format("%02d", getMonth(startDate))

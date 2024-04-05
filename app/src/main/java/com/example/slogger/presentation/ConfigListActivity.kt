@@ -8,9 +8,13 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.recyclerview.widget.RecyclerView
+import androidx.wear.widget.WearableLinearLayoutManager
+import androidx.wear.widget.WearableRecyclerView
 import com.example.slogger.R
 
 import kotlinx.serialization.Serializable
@@ -29,39 +33,71 @@ class ConfigListActivity : AppCompatActivity() {
     private lateinit var accelView: TextView
     private lateinit var gyroView: TextView
 
+    private lateinit var recyclerView: WearableRecyclerView
+    private lateinit var configList: MutableList<ConfigItem>
+    private lateinit var configAdapter: ConfigAdapter
+
     private val deviceNameResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 // Handle the result
                 val data: Intent? = result.data
-                val name =  data?.getStringExtra("Name").toString()
+                val name =  data?.getStringExtra("DeviceName").toString()
                 configParams.deviceName = name
-                setNameView()
+                //setNameView()
+
+                configList[0].value = name
+
+                //configAdapter.notifyDataSetChanged()
+                configAdapter.notifyItemChanged(0)
 
                 saveConfigFile()
             }
         }
 
-    private val startTimeResultLauncher =
+    private val protocolNameResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 // Handle the result
                 val data: Intent? = result.data
-                val type = data?.getStringExtra("Type").toString()
-                val d = data?.getIntExtra("Date", 0)!!
-                val t = data?.getIntExtra("Timestamp", 0)!!
+                val protocol =  data?.getStringExtra("Protocol").toString()
 
-                Log.d("Debug", "$type, $d, $t")
-                if (type == "Start") {
+                configParams.protocol = protocol
+                configList[1].value = protocol
+
+                //configAdapter.notifyDataSetChanged()
+                configAdapter.notifyItemChanged(1)
+                saveConfigFile()
+            }
+        }
+
+    private val startEndTimeResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Handle the result
+                val data: Intent? = result.data
+                val type = data?.getStringExtra("Tag").toString()
+                val d = data?.getIntExtra("Date", 0)!!
+                val t = data.getIntExtra("Timestamp", 0)
+
+                //Log.d("Debug", "$type, $d, $t")
+                val hh = String.format("%02d", getHour(t))
+                val mm = String.format("%02d", getMinute(t))
+
+                if (type == "StartTime") {
                     configParams.startDate = d
                     configParams.startTimestamp = t
-                    setStartTimeView()
-                }
-                if (type == "End") {
+                    configList[2].value = configParams.getStartDate() + " $hh:$mm"
+                    configAdapter.notifyItemChanged(2)
+                } else if (type == "EndTime") {
                     configParams.endDate = d
                     configParams.endTimestamp = t
-                    setEndTimeView()
+                    configList[3].value = configParams.getEndDate() + " $hh:$mm"
+                    configAdapter.notifyItemChanged(3)
                 }
+
+                //configAdapter.notifyDataSetChanged()
+
                 saveConfigFile()
             }
         }
@@ -72,20 +108,97 @@ class ConfigListActivity : AppCompatActivity() {
                 // Handle the result
                 val data: Intent? = result.data
 
-                val type = data?.getStringExtra("Type").toString()
-                if (type == "Accel") {
-                    configParams.accelFreq = data?.getIntExtra("Freq", 0)!!
-                    setAccelView()
+                val tag = data?.getStringExtra("Tag").toString()
+                val freq = data?.getIntExtra("Freq", 0)!!
+
+                /* The design decision for sensor MODE/FREQUENCIES:
+                 * 1) in the config file, we store the frequencies. The frequency number
+                 * is used to generate log file name and the log files are uploaded to server,
+                 * where the processing scripts read the filenames. We don't want to change
+                 * the filenames, because this will affect the server scripts.
+                 * 2) Instead, we use Mode to display on the wearable Apps, and we store the
+                 * corresponding frequencies in the config file. This requires conversion:
+                 * freq2mode(), mode2freq(), etc.
+                 */
+                //Log.d("Debug", "$tag, $freq")
+
+                when (tag) {
+                    "AccelFreq" -> {
+                        configParams.accelFreq = freq
+                        configList[4].value = freq2mode(freq)
+                        configAdapter.notifyItemChanged(4)
+                    }
+                    "GyroFreq" -> {
+                        configParams.gyroFreq = freq
+                        configList[5].value = freq2mode(freq)
+                        configAdapter.notifyItemChanged(5)
+                    }
+                    "HeartFreq" -> {
+                        configParams.heartFreq = freq
+                        configList[6].value = freq2mode(freq)
+                        configAdapter.notifyItemChanged(6)
+                    }
+                    "OffBodyFreq" -> {
+                        configParams.offbodyFreq = freq
+                        configList[7].value = freq2mode(freq)
+                        configAdapter.notifyItemChanged(7)
+                    }
                 }
-                if (type == "Gyro") {
-                    configParams.gyroFreq = data?.getIntExtra("Freq", 0)!!
-                    //configParams.heartFreq = data?.getIntExtra("HeartFreq", 0)!!
-                    setGyroView()
-                }
+
+//                if (tag == "AccelFreq") {
+//                    configParams.accelFreq = freq
+//                    configList[4].value = freq2mode(freq)
+//                    configAdapter.notifyItemChanged(4)
+//                } else if (tag == "GyroFreq") {
+//                    configParams.gyroFreq = freq
+//                    configList[5].value = freq2mode(freq)
+//                    configAdapter.notifyItemChanged(5)
+//                } else if (tag == "HeartFreq") {
+//                    configParams.heartFreq = freq
+//                    configList[6].value = freq2mode(freq)
+//                    configAdapter.notifyItemChanged(6)
+//                } else if (tag == "OffBodyFreq") {
+//                    configParams.offbodyFreq = freq
+//                    configList[7].value = freq2mode(freq)
+//                    configAdapter.notifyItemChanged(7)
+//                }
+
+                //configAdapter.notifyDataSetChanged()
                 saveConfigFile()
             }
         }
 
+    private val serverResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Handle the result
+                val data: Intent? = result.data
+                configParams.baseURL = data?.getStringExtra("BaseURL").toString()
+                configParams.suffixURL = data?.getStringExtra("SuffixURL").toString()
+
+                saveConfigFile()
+
+                if (configParams.baseURL != "") {
+                    configList[8].value = configParams.getBaseDomain()
+                    configAdapter.notifyItemChanged(8)
+                    //configAdapter.notifyDataSetChanged()
+                }
+            }
+        }
+
+    private val fileStatsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                //Log.d("Debug", "deletion finished.")
+                val files = filesDir.listFiles()
+                if (files != null) {
+                    configList[9].value = files.size.toString()
+                    configAdapter.notifyItemChanged(9)
+                }
+
+                //configAdapter.notifyDataSetChanged()
+            }
+        }
     /*
     private val httpXferResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -168,17 +281,17 @@ class ConfigListActivity : AppCompatActivity() {
         setNameView()
         setStartTimeView()
         setEndTimeView()
-        setAccelView()
-        setGyroView()
+        //setAccelView()
+        //setGyroView()
 
         nameView.setOnClickListener {
-            var intent = Intent(this, DeviceNameActivity::class.java)
+            val intent = Intent(this, DeviceNameActivity::class.java)
             intent.putExtra("Name", configParams.deviceName)
             deviceNameResultLauncher.launch(intent)
         }
 
         startTimeView.setOnClickListener {
-            var intent = Intent(this, DeviceTimeActivity::class.java)
+            val intent = Intent(this, DeviceTimeActivity::class.java)
 
             intent.putExtra("Type", "Start")
             intent.putExtra("Year", getYear(configParams.startDate))
@@ -189,11 +302,11 @@ class ConfigListActivity : AppCompatActivity() {
             intent.putExtra("Minute", getMinute(configParams.startTimestamp))
             intent.putExtra("Second", getSecond(configParams.startTimestamp))
 
-            startTimeResultLauncher.launch(intent)
+            startEndTimeResultLauncher.launch(intent)
         }
 
         endTimeView.setOnClickListener {
-            var intent = Intent(this, DeviceTimeActivity::class.java)
+            val intent = Intent(this, DeviceTimeActivity::class.java)
 
             intent.putExtra("Type", "End")
             intent.putExtra("Year", getYear(configParams.endDate))
@@ -204,21 +317,21 @@ class ConfigListActivity : AppCompatActivity() {
             intent.putExtra("Minute", getMinute(configParams.endTimestamp))
             intent.putExtra("Second", getSecond(configParams.endTimestamp))
 
-            startTimeResultLauncher.launch(intent)
+            startEndTimeResultLauncher.launch(intent)
         }
 
         accelView.setOnClickListener {
-            var intent = Intent(this, SensorFreqActivity::class.java)
+            val intent = Intent(this, SensorFreqActivity::class.java)
             intent.putExtra("Type", "Accel")
-            intent.putExtra("Freq", configParams.accelFreq)
+            //intent.putExtra("Freq", configParams.accelFreq)
             //intent.putExtra("HeartFreq", configParams.heartFreq)
             sensorFreqResultLauncher.launch(intent)
         }
 
         gyroView.setOnClickListener {
-            var intent = Intent(this, SensorFreqActivity::class.java)
+            val intent = Intent(this, SensorFreqActivity::class.java)
             intent.putExtra("Type", "Gyro")
-            intent.putExtra("Freq", configParams.gyroFreq)
+            //intent.putExtra("Freq", configParams.gyroFreq)
             //intent.putExtra("HeartFreq", configParams.heartFreq)
             sensorFreqResultLauncher.launch(intent)
         }
@@ -241,9 +354,155 @@ class ConfigListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_config_list)
+        setContentView(R.layout.activity_recyclerview)
 
         loadConfigFile()
-        setViews()
+
+        configList = ArrayList()
+
+        val deviceName = ConfigItem("DeviceName", "Device", configParams.deviceName)
+        configList.add(deviceName)
+
+        val protocol = ConfigItem("Protocol", "Protocol", configParams.protocol)
+        configList.add(protocol)
+
+        var yyyymmdd = configParams.getStartDate()
+        var timestamp = configParams.startTimestamp
+        var hh = String.format("%02d", getHour(timestamp))
+        var mm = String.format("%02d", getMinute(timestamp))
+        val startTime = ConfigItem("StartTime", "Start", "$yyyymmdd $hh:$mm")
+        configList.add(startTime)
+
+        yyyymmdd = configParams.getEndDate()
+        timestamp = configParams.endTimestamp
+        hh = String.format("%02d", getHour(timestamp))
+        mm = String.format("%02d", getMinute(timestamp))
+        val endTime = ConfigItem("EndTime", "End", "$yyyymmdd $hh:$mm")
+        configList.add(endTime)
+
+        var freq = configParams.accelFreq
+        val accelFreq = ConfigItem("AccelFreq", "Accel", freq2mode(freq))
+        configList.add(accelFreq)
+
+        freq = configParams.gyroFreq
+        val gyroFreq = ConfigItem("GyroFreq", "Gyro", freq2mode(freq))
+        configList.add(gyroFreq)
+
+        freq = configParams.heartFreq
+        val heartFreq = ConfigItem("HeartFreq", "Heart", freq2mode(freq))
+        configList.add(heartFreq)
+
+        freq = configParams.offbodyFreq
+        val offBodyFreq = ConfigItem("OffBodyFreq", "OffBody", freq2mode(freq))
+        configList.add(offBodyFreq)
+
+        val baseURL = configParams.baseURL
+        val serverInfo = ConfigItem("Server", "Server", "")
+        if (baseURL != "") {
+            serverInfo.value = configParams.getBaseDomain()
+        }
+        configList.add(serverInfo)
+
+        val files = filesDir.listFiles()
+        val fileStats = ConfigItem("FileStats", "Files", files?.size.toString())
+        configList.add(fileStats)
+
+        configAdapter = ConfigAdapter(configList)
+
+        configAdapter.onItemClick = {
+            if (it.tag == "DeviceName") {
+                val intent = Intent(this, DeviceNameActivity::class.java)
+                intent.putExtra(it.tag, it.value)
+                deviceNameResultLauncher.launch(intent)
+            } else if (it.tag == "Protocol") {
+                val intent = Intent(this, ProtocolNameActivity::class.java)
+                intent.putExtra(it.tag, it.value)
+                protocolNameResultLauncher.launch(intent)
+            } else if (it.tag == "StartTime"){
+                val intent = Intent(this, DeviceTimeActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Date", configParams.startDate)
+                intent.putExtra("Timestamp", configParams.startTimestamp)
+                startEndTimeResultLauncher.launch(intent)
+            } else if (it.tag == "EndTime") {
+                val intent = Intent(this, DeviceTimeActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Date", configParams.endDate)
+                intent.putExtra("Timestamp", configParams.endTimestamp)
+                startEndTimeResultLauncher.launch(intent)
+            } else if (it.tag == "AccelFreq") {
+                val intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.accelFreq)
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "GyroFreq") {
+                val intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.gyroFreq)
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "HeartFreq") {
+                val intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.heartFreq)
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "OffBodyFreq") {
+                val intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.offbodyFreq)
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "Server") {
+                val intent = Intent(this, ConfigServerActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("BaseURL", configParams.baseURL)
+                intent.putExtra("SuffixURL", configParams.suffixURL)
+                serverResultLauncher.launch(intent)
+            }else if (it.tag == "FileStats") {
+                val intent = Intent(this, FileStatsActivity::class.java)
+                //intent.putExtra("FileStats", configParams.getFileStats())
+                fileStatsLauncher.launch(intent)
+            }
+        }
+
+        recyclerView = findViewById(R.id.wearable_recycler_view)
+        recyclerView.apply {
+            isEdgeItemsCenteringEnabled = true
+            //layoutManager = WearableLinearLayoutManager(this@ConfigurationActivity)
+            layoutManager = WearableLinearLayoutManager(this@ConfigListActivity, CustomScrollingLayoutCallback())
+            adapter = configAdapter
+
+        }
+
+        //nameView = findViewById(R.id.deviceName)
+        //setViews()
+    }
+}
+
+/** How much icons should scale, at most.  */
+private const val MAX_ICON_PROGRESS = 0.65f
+
+class CustomScrollingLayoutCallback : WearableLinearLayoutManager.LayoutCallback() {
+
+    private var progressToCenter: Float = 0f
+
+    override fun onLayoutFinished(child: View, parent: RecyclerView) {
+        child.apply {
+            // Figure out % progress from top to bottom.
+            val centerOffset = height.toFloat() / 2.0f / parent.height.toFloat()
+            val yRelativeToCenterOffset = y / parent.height + centerOffset
+
+            // Normalize for center.
+            progressToCenter = Math.abs(0.5f - yRelativeToCenterOffset)
+
+            // Adjust to the maximum scale.
+            progressToCenter = Math.min(progressToCenter, MAX_ICON_PROGRESS)
+
+            scaleX = 1f
+            scaleY = 1f
+
+            if (progressToCenter > 0.3f) {
+                scaleX = 1 - progressToCenter * progressToCenter
+                //scaleY = 1 - progressToCenter * progressToCenter
+            }
+        }
     }
 }

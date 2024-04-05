@@ -130,6 +130,7 @@ class SensorLoggingService: Service() {
             sensorManager,
             Sensor.TYPE_ACCELEROMETER,
             configParams.deviceName,
+            configParams.protocol,
             expId,
             configParams.accelFreq,
             maxRecordCount
@@ -149,6 +150,7 @@ class SensorLoggingService: Service() {
             sensorManager,
             Sensor.TYPE_GYROSCOPE,
             configParams.deviceName,
+            configParams.protocol,
             expId,
             configParams.gyroFreq,
             maxRecordCount
@@ -168,6 +170,7 @@ class SensorLoggingService: Service() {
             sensorManager,
             Sensor.TYPE_HEART_RATE,
             configParams.deviceName,
+            configParams.protocol,
             expId,
             configParams.heartFreq,
             maxRecordCount
@@ -187,6 +190,7 @@ class SensorLoggingService: Service() {
             sensorManager,
             Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT,
             configParams.deviceName,
+            configParams.protocol,
             expId,
             configParams.offbodyFreq,
             maxRecordCount

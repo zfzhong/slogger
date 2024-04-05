@@ -4,28 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.DeviceNameActivity">
+    tools:context=".presentation.ProtocolNameActivity">
 
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/protocolTextView"
         android:layout_width="81dp"
         android:layout_height="32dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="16dp"
         android:gravity="center"
-        android:text="Device Name"
+        android:text="Protocol Name"
         android:textSize="12sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/deviceNameInputLayout"
+        app:layout_constraintBottom_toTopOf="@+id/protocolNameInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.017" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/deviceNameInputLayout"
+        android:id="@+id/protocolNameInputLayout"
         android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -37,11 +37,11 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/deviceNameEditText"
+            android:id="@+id/protocolNameEditText"
             android:layout_width="203dp"
             android:layout_height="58dp"
             android:gravity="center"
-            android:hint="e.g. Pix01" />
+            android:hint="e.g. Sleep" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -56,6 +56,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/deviceNameInputLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/protocolNameInputLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
