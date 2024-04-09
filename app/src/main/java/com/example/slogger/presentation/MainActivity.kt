@@ -72,19 +72,29 @@ class MainActivity : ComponentActivity() {
 
     private val stateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+
             // Handle the received data here
-            val state = intent?.getStringExtra("State")
-            debugLogger.logDebug("Debug", "StateReceiver: "+state.toString())
 
-            if (state == "LOGGING") {
-                _appState.update { AppStates.LOGGING }
+            if (intent?.action.toString() == "config_change") {
+                val msg = intent?.getStringExtra("Message").toString()
+                Log.d("debug", msg)
+                debugLogger.logDebug("Debug", "config_change, $msg")
             }
 
-            if (state == "IDLE") {
-                _appState.update { AppStates.IDLE }
+            if (intent?.action.toString() == "sensor_status") {
+                val state = intent?.getStringExtra("State")
+                debugLogger.logDebug("Debug", "StateReceiver: " + state.toString())
+
+                if (state == "LOGGING") {
+                    _appState.update { AppStates.LOGGING }
+                }
+
+                if (state == "IDLE") {
+                    _appState.update { AppStates.IDLE }
+                }
+                //updateUI(customArgument)
             }
 
-            //updateUI(customArgument)
         }
     }
 
@@ -151,6 +161,10 @@ class MainActivity : ComponentActivity() {
         // Register the BroadcastReceiver
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(stateReceiver, IntentFilter("sensor_status"))
+
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(stateReceiver, IntentFilter("config_change"))
+
 
         setContent {
             val _state by appState.collectAsStateWithLifecycle()

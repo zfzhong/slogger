@@ -12,7 +12,8 @@ class SensorGyroscope(
     protocol: String,
     expId: String,
     freq: Int,
-    maxRecordInFile: Int
+    maxRecordInFile: Int,
+    batchSize: Int
 ) : GeneralSensor(
     context,
     sensorManager,
@@ -21,5 +22,7 @@ class SensorGyroscope(
     protocol,
     expId,
     freq,
-    maxRecordInFile)
+    maxRecordInFile,
+    batchSize)
+
 {}

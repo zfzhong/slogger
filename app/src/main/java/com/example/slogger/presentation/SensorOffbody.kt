@@ -13,7 +13,8 @@ class SensorOffbody(
     protocol: String,
     expId: String,
     freq: Int,
-    maxRecordInFile: Int
+    maxRecordInFile: Int,
+    batchSize: Int
 ) : GeneralSensor(
     context,
     sensorManager,
@@ -22,7 +23,8 @@ class SensorOffbody(
     protocol,
     expId,
     freq,
-    maxRecordInFile)
+    maxRecordInFile,
+    batchSize)
 {
     // The Motion sensor differs from Accelerometer/Gyroscope in
     // the logging file format. We need the following function to get

@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -51,7 +52,7 @@ class ConfigListActivity : AppCompatActivity() {
                 //configAdapter.notifyDataSetChanged()
                 configAdapter.notifyItemChanged(0)
 
-                saveConfigFile()
+                saveConfigFile("deviceName: $name")
             }
         }
 
@@ -67,7 +68,7 @@ class ConfigListActivity : AppCompatActivity() {
 
                 //configAdapter.notifyDataSetChanged()
                 configAdapter.notifyItemChanged(1)
-                saveConfigFile()
+                saveConfigFile("protocol: $protocol")
             }
         }
 
@@ -98,7 +99,7 @@ class ConfigListActivity : AppCompatActivity() {
 
                 //configAdapter.notifyDataSetChanged()
 
-                saveConfigFile()
+                saveConfigFile("$type: $d, $hh:$mm")
             }
         }
 
@@ -164,7 +165,7 @@ class ConfigListActivity : AppCompatActivity() {
 //                }
 
                 //configAdapter.notifyDataSetChanged()
-                saveConfigFile()
+                saveConfigFile("$tag: $freq")
             }
         }
 
@@ -176,7 +177,7 @@ class ConfigListActivity : AppCompatActivity() {
                 configParams.baseURL = data?.getStringExtra("BaseURL").toString()
                 configParams.suffixURL = data?.getStringExtra("SuffixURL").toString()
 
-                saveConfigFile()
+                saveConfigFile("BaseURL:${configParams.suffixURL}")
 
                 if (configParams.baseURL != "") {
                     configList[8].value = configParams.getBaseDomain()
@@ -199,18 +200,22 @@ class ConfigListActivity : AppCompatActivity() {
                 //configAdapter.notifyDataSetChanged()
             }
         }
-    /*
-    private val httpXferResultLauncher =
+
+
+    private val batchSizeResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 // Handle the result
                 val data: Intent? = result.data
-                configParams.xferLink = data?.getStringExtra("XferLink").toString()
+                val batchSize = data?.getStringExtra("BatchSize").toString()
+                configParams.batchSize = batchSize.toInt()
 
-                setEndTimeView()
+                saveConfigFile("BatchSize: $batchSize")
+
+                configList[10].value = batchSize
+                configAdapter.notifyItemChanged(10)
             }
         }
-     */
 
     private fun loadConfigFile() {
         // We have to specify the 'fileDir', otherwise it will cause error.
@@ -224,7 +229,15 @@ class ConfigListActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveConfigFile() {
+    private fun broadcastConfigChange(msg: String) {
+        //Log.d("debug", "broadcastConfigChange")
+        val broadcastIntent = Intent("config_change")
+        broadcastIntent.putExtra("Message", msg)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+    }
+
+    private fun saveConfigFile(msg: String) {
+        //Log.d("debug", "saveConfig $msg")
         val file = File(filesDir, configFile)
         try {
             val s = Json.encodeToString(configParams)
@@ -232,6 +245,7 @@ class ConfigListActivity : AppCompatActivity() {
             FileOutputStream(file).use {
                 it.write(s.toByteArray())
             }
+            broadcastConfigChange(msg)
         } catch (e: Exception) {
             Log.d("error", e.toString())
         }
@@ -407,6 +421,10 @@ class ConfigListActivity : AppCompatActivity() {
         val fileStats = ConfigItem("FileStats", "Files", files?.size.toString())
         configList.add(fileStats)
 
+        val batchSize = configParams.batchSize
+        val batchInfo = ConfigItem("BatchSize", "BatchSize", batchSize.toString())
+        configList.add(batchInfo)
+
         configAdapter = ConfigAdapter(configList)
 
         configAdapter.onItemClick = {
@@ -460,6 +478,11 @@ class ConfigListActivity : AppCompatActivity() {
                 val intent = Intent(this, FileStatsActivity::class.java)
                 //intent.putExtra("FileStats", configParams.getFileStats())
                 fileStatsLauncher.launch(intent)
+            } else if (it.tag == "BatchSize") {
+                val intent = Intent(this, BatchSizeActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("BatchSize", configParams.batchSize)
+                batchSizeResultLauncher.launch(intent)
             }
         }
 

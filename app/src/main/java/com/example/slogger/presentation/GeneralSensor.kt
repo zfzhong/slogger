@@ -19,8 +19,13 @@ open class GeneralSensor (
     private val expId: String,
     private val freq: Int,
     private val maxRecordInFile: Int,
+    private val batchSize: Int
 ) {
+    // Configure wakeup sensors
+    //private var sensor = sensorManager.getDefaultSensor(type, true)!!
     private var sensor = sensorManager.getDefaultSensor(type)!!
+
+
     private lateinit var fileHandler: File
 
     private var filename = ""
@@ -28,6 +33,11 @@ open class GeneralSensor (
     private var currRecordCount = 0
 
     private var isRunning = false
+
+    // write once every 50 records
+    private val write2fileMaxCount = 50
+    // buffer the writing records
+    private var buffString = ""
 
     private fun getSensorTypeName(): String {
         if (type == Sensor.TYPE_HEART_RATE) {
@@ -82,6 +92,14 @@ open class GeneralSensor (
 
                 currRecordCount += 1
 
+                // The following code might never have change to flush out some records which stay
+                // in the 'buffSting' and their total number is less than 'write2fileMaxCount'.
+//                if (currRecordCount % write2fileMaxCount == 0) {
+//                    write2File(buffString)
+//                    buffString = ""
+//                }
+
+
                 if (currRecordCount >= maxRecordInFile) {
                     currRecordCount = 0
                     fileSeqNum += 1
@@ -119,7 +137,9 @@ open class GeneralSensor (
             sensorManager.registerListener(
                 listener,
                 sensor,
-                getSensorMode(freq)
+                //getSensorMode(freq)
+                (1000/freq)*1000,
+                (1000/freq)*1000*batchSize
             )
 
         } catch (e: Exception) {

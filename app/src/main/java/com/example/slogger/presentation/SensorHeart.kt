@@ -13,7 +13,8 @@ class SensorHeart(
     protocol: String,
     expId: String,
     freq: Int,
-    maxRecordInFile: Int
+    maxRecordInFile: Int,
+    batchSize: Int
 ) : GeneralSensor(
     context,
     sensorManager,
@@ -22,7 +23,8 @@ class SensorHeart(
     protocol,
     expId,
     freq,
-    maxRecordInFile)
+    maxRecordInFile,
+    batchSize)
 {
     // The heart rate sensor differs from Accelerometer/Gyroscope in
     // the logging file format. We need the following function to get

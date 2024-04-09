@@ -19,6 +19,10 @@
         android:theme="@android:style/Theme.DeviceDefault"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".presentation.BatchSizeActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+        <activity
             android:name=".presentation.FileStatsActivity"
             android:exported="false"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
@@ -33,23 +37,23 @@
         <activity
             android:name=".presentation.SensorFreqActivity"
             android:exported="false"
-            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
-            android:taskAffinity=".SensorFreqAffinity" />
+            android:taskAffinity=".SensorFreqAffinity"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
         <activity
             android:name=".presentation.DeviceTimeActivity"
             android:exported="false"
-            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
-            android:taskAffinity=".DeviceTimeAffinity" />
+            android:taskAffinity=".DeviceTimeAffinity"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
         <activity
             android:name=".presentation.DeviceNameActivity"
             android:exported="false"
-            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
-            android:taskAffinity=".DeviceNameAffinity" />
+            android:taskAffinity=".DeviceNameAffinity"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
         <activity
             android:name=".presentation.ConfigListActivity"
             android:exported="false"
-            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
-            android:taskAffinity=".ConfigListAffinity" />
+            android:taskAffinity=".ConfigListAffinity"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
 
         <uses-library
             android:name="com.google.android.wearable"
@@ -65,8 +69,8 @@
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.DeviceDefault"
-            android:taskAffinity=".MainActivityAffinity">
+            android:taskAffinity=".MainActivityAffinity"
+            android:theme="@android:style/Theme.DeviceDefault">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -93,4 +97,5 @@
             </intent-filter>
         </receiver>
     </application>
+
 </manifest>

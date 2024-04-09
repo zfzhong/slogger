@@ -110,7 +110,7 @@ fun mode2freq(x: String, sensorTag: String): Int {
     if (x == "Off") {
         return 0
     } else if (x == "Normal") {
-        if (sensorTag == "Heart" || sensorTag == "OffBody") {
+        if (sensorTag == "HeartFreq" || sensorTag == "OffBodyFreq") {
             return 1
         }
         return 5// 200 ms

@@ -15,6 +15,7 @@ data class ConfigParams(
     var gyroFreq: Int = 0,
     var heartFreq: Int = 0,
     var offbodyFreq: Int = 0,
+    var batchSize: Int = 1,
     var baseURL: String ="https://weardatadl.com:8443",
     var suffixURL: String = "/android_xfer/",
     var lastUploadedCount:Int = 0

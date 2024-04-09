@@ -12,7 +12,8 @@ class SensorAccelerometer(
     protocol: String,
     expId: String,
     freq: Int,
-    maxRecordInFile: Int
+    maxRecordInFile: Int,
+    batchSize: Int
 ) : GeneralSensor(
     context,
     sensorManager,
@@ -21,5 +22,6 @@ class SensorAccelerometer(
     protocol,
     expId,
     freq,
-    maxRecordInFile)
+    maxRecordInFile,
+    batchSize)
 {}

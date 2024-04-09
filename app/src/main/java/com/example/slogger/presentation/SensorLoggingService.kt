@@ -133,7 +133,8 @@ class SensorLoggingService: Service() {
             configParams.protocol,
             expId,
             configParams.accelFreq,
-            maxRecordCount
+            maxRecordCount,
+            configParams.batchSize
         )
         sensorAccel.start()
     }
@@ -153,7 +154,8 @@ class SensorLoggingService: Service() {
             configParams.protocol,
             expId,
             configParams.gyroFreq,
-            maxRecordCount
+            maxRecordCount,
+            configParams.batchSize
         )
         sensorGyro.start()
     }
@@ -173,7 +175,8 @@ class SensorLoggingService: Service() {
             configParams.protocol,
             expId,
             configParams.heartFreq,
-            maxRecordCount
+            maxRecordCount,
+            configParams.batchSize
         )
         sensorHeart.start()
     }
@@ -193,7 +196,8 @@ class SensorLoggingService: Service() {
             configParams.protocol,
             expId,
             configParams.offbodyFreq,
-            maxRecordCount
+            maxRecordCount,
+            configParams.batchSize
         )
         sensorOffbody.start()
     }

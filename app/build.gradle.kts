@@ -14,7 +14,7 @@ android {
         minSdk = 31
         targetSdk = 33
         versionCode = 1
-        versionName = "1.5.9"
+        versionName = "1.6.0"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -77,6 +77,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.wear:wear:1.3.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("androidx.activity:activity:1.8.0")
 
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.04.00"))
