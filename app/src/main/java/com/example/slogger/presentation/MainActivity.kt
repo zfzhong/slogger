@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
 
             if (intent?.action.toString() == "config_change") {
                 val msg = intent?.getStringExtra("Message").toString()
-                Log.d("debug", msg)
+                //Log.d("debug", msg)
                 debugLogger.logDebug("Debug", "config_change, $msg")
             }
 
@@ -144,6 +144,8 @@ class MainActivity : ComponentActivity() {
 
         // Initialize the DebugLogger
         debugLogger = DebugLogger(filesDir, configParams.deviceName)
+        debugLogger.logDebug("Debug","mainActivity: onCreate(). Slogger started.")
+
 
         //sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         //accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
@@ -293,6 +295,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(stateReceiver)
+        debugLogger.logDebug("Debug","mainActivity: onDestroy(). Slogger exited.")
+
         super.onDestroy()
 }
 
@@ -310,6 +314,10 @@ class MainActivity : ComponentActivity() {
     fun upload() {
         _appState.update {AppStates.TRANSFER}
 
+        // Load the configuration again, because user might change the server
+        // info and try to upload files to another server.
+        loadConfigFile()
+
         // Initialize httpController
         if (!this::httpController.isInitialized) {
             httpController = HttpController(WeakReference(this),configParams.getServerURL())
@@ -323,7 +331,7 @@ class MainActivity : ComponentActivity() {
 
         // Add the app_log.txt
         var files = filesDir.listFiles()
-        for (file in files) {
+        for (file in files!!) {
             //Log.d("Debug", file.name)
             if (file.name.contains("app_log")) {
                 allFiles.add(file)

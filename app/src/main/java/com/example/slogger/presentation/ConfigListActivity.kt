@@ -177,7 +177,7 @@ class ConfigListActivity : AppCompatActivity() {
                 configParams.baseURL = data?.getStringExtra("BaseURL").toString()
                 configParams.suffixURL = data?.getStringExtra("SuffixURL").toString()
 
-                saveConfigFile("BaseURL:${configParams.suffixURL}")
+                saveConfigFile("${configParams.baseURL}${configParams.suffixURL}")
 
                 if (configParams.baseURL != "") {
                     configList[8].value = configParams.getBaseDomain()
