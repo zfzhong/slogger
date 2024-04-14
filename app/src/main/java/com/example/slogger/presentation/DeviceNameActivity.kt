@@ -18,7 +18,7 @@ class DeviceNameActivity : AppCompatActivity() {
         setContentView(R.layout.activity_device_name)
 
         // set the view
-        val name = intent.getStringExtra("DeviceName").toString()
+        val name = intent.getStringExtra("DeviceName").toString().trim()
         editText = findViewById(R.id.deviceNameEditText)
         editText.text = name
 
@@ -26,7 +26,7 @@ class DeviceNameActivity : AppCompatActivity() {
         var saveButton = findViewById<Button>(R.id.saveButton)
         saveButton.setOnClickListener{
             var res = Intent()
-            res.putExtra("DeviceName", editText.text.toString())
+            res.putExtra("DeviceName", editText.text.toString().trim())
             setResult(Activity.RESULT_OK, res)
             finish()
         }

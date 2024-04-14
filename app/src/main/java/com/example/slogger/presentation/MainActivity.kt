@@ -75,21 +75,28 @@ class MainActivity : ComponentActivity() {
 
             // Handle the received data here
 
-            if (intent?.action.toString() == "config_change") {
+            if (intent?.action.toString() == "config_change" || intent?.action.toString() == "sensor_logging") {
                 val msg = intent?.getStringExtra("Message").toString()
                 //Log.d("debug", msg)
-                debugLogger.logDebug("Debug", "config_change, $msg")
+                val action = intent?.action.toString()
+                debugLogger.logDebug("Debug", "$action, $msg")
             }
 
             if (intent?.action.toString() == "sensor_status") {
                 val state = intent?.getStringExtra("State")
                 debugLogger.logDebug("Debug", "StateReceiver: " + state.toString())
 
+                // Dump battery level to trace when logging starts
                 if (state == "LOGGING") {
+                    val bl = getBatteryLevel()
+                    debugLogger.logDebug("Debug", "battery: $bl%")
                     _appState.update { AppStates.LOGGING }
                 }
 
+                // Dump battery level to trace when logging stops
                 if (state == "IDLE") {
+                    val bl = getBatteryLevel()
+                    debugLogger.logDebug("Debug", "battery: $bl%")
                     _appState.update { AppStates.IDLE }
                 }
                 //updateUI(customArgument)
@@ -159,6 +166,7 @@ class MainActivity : ComponentActivity() {
 
         // debug
         //deleteAllFiles()
+        //changeFilenames()
 
         // Register the BroadcastReceiver
         LocalBroadcastManager.getInstance(this)
@@ -167,6 +175,8 @@ class MainActivity : ComponentActivity() {
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(stateReceiver, IntentFilter("config_change"))
 
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(stateReceiver, IntentFilter("sensor_logging"))
 
         setContent {
             val _state by appState.collectAsStateWithLifecycle()
@@ -230,7 +240,7 @@ class MainActivity : ComponentActivity() {
      * The following implementation is from
      * https://medium.com/make-apps-simple/get-the-android-app-version-programmatically-5ba27d6a37fe
      */
-    fun getAppVersion(
+    private fun getAppVersion(
         context: Context,
     ): String ? {
         return try {
@@ -247,7 +257,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun getBatteryLevel(): Int {
+    private fun getBatteryLevel(): Int {
         val bm = applicationContext.getSystemService(BATTERY_SERVICE) as BatteryManager
 
         // Get the battery percentage and store it in a INT variable
@@ -417,6 +427,27 @@ class MainActivity : ComponentActivity() {
             Log.d("Debug","mainActivity: delete, ${file.name}")
             if (file.name != "config.txt") {
                 file.delete()
+            }
+        }
+    }
+
+    fun changeFilenames() {
+        // for debugging purposes
+        // if the filenames are improperly generated, we use this function to correct them
+        // before uploading to the server.
+        var files = filesDir.listFiles()!!
+        for (file in files) {
+            //Log.d("Debug","mainActivity: delete, ${file.name}")
+            val s = file.name
+            //Log.d("debug", s)
+
+            val newFilename = s.replace("\n", "")
+            Log.d("debug", "$s; $newFilename")
+
+            val newFile = File(filesDir, newFilename)
+            val res = file.renameTo(newFile)
+            if (res) {
+                Log.d("debug", "renamed successfully.")
             }
         }
     }

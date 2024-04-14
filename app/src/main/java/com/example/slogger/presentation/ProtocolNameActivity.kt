@@ -18,7 +18,7 @@ class ProtocolNameActivity : AppCompatActivity() {
         setContentView(R.layout.activity_protocol_name)
 
         // set the view
-        val name = intent.getStringExtra("Protocol").toString()
+        val name = intent.getStringExtra("Protocol").toString().trim()
         editText = findViewById(R.id.protocolNameEditText)
         editText.text = name
 
@@ -26,7 +26,7 @@ class ProtocolNameActivity : AppCompatActivity() {
         var saveButton = findViewById<Button>(R.id.saveButton)
         saveButton.setOnClickListener{
             var res = Intent()
-            res.putExtra("Protocol", editText.text.toString())
+            res.putExtra("Protocol", editText.text.toString().trim())
             setResult(Activity.RESULT_OK, res)
             finish()
         }

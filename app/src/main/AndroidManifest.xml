@@ -12,7 +12,6 @@
     <uses-feature android:name="android.hardware.type.watch" />
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -21,18 +20,22 @@
         <activity
             android:name=".presentation.BatchSizeActivity"
             android:exported="false"
+            android:taskAffinity=".BatchSizeActivity"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
         <activity
             android:name=".presentation.FileStatsActivity"
             android:exported="false"
+            android:taskAffinity=".FileStatsActivity"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
         <activity
             android:name=".presentation.ConfigServerActivity"
             android:exported="false"
+            android:taskAffinity=".ConfigServerActivity"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
         <activity
             android:name=".presentation.ProtocolNameActivity"
             android:exported="false"
+            android:taskAffinity=".ProtocolNameActivity"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
         <activity
             android:name=".presentation.SensorFreqActivity"

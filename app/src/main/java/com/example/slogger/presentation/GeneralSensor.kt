@@ -2,12 +2,16 @@ package com.example.slogger.presentation
 
 
 import android.content.Context
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import java.io.BufferedWriter
 import java.io.File
+import java.io.IOException
 import java.lang.ref.WeakReference
 
 open class GeneralSensor (
@@ -22,9 +26,7 @@ open class GeneralSensor (
     private val batchSize: Int
 ) {
     // Configure wakeup sensors
-    //private var sensor = sensorManager.getDefaultSensor(type, true)!!
-    private var sensor = sensorManager.getDefaultSensor(type)!!
-
+    private var sensor = sensorManager.getDefaultSensor(type, true)!!
 
     private lateinit var fileHandler: File
 
@@ -34,10 +36,11 @@ open class GeneralSensor (
 
     private var isRunning = false
 
-    // write once every 50 records
-    private val write2fileMaxCount = 50
-    // buffer the writing records
-    private var buffString = ""
+    // User bufferedWriter to write to files
+    private var bufferedWriter: BufferedWriter? = null
+
+    // Write once every 500 records
+    private val write2fileMaxCount = 500
 
     private fun getSensorTypeName(): String {
         if (type == Sensor.TYPE_HEART_RATE) {
@@ -68,8 +71,6 @@ open class GeneralSensor (
         override fun onSensorChanged(event: SensorEvent?) {
             if (event?.sensor?.type == type) {
 
-                val s = getValues(event)
-
                 if (currRecordCount == 0) {
                     // 1. Get current wall clock timestamp.
                     val millis = System.currentTimeMillis().toString()
@@ -86,19 +87,27 @@ open class GeneralSensor (
 
                     // open the new file
                     fileHandler = File(context.filesDir, filename)
+//                    try {
+//                        fileHandler.createNewFile()
+//                    } catch (e: IOException) {
+//                        broadcastMessage("create file error: $filename")
+//                    }
+
+                    // close previous bufferedWriter
+                    bufferedWriter?.flush()
+                    bufferedWriter?.close()
+                    bufferedWriter = fileHandler.bufferedWriter()
                 }
 
-                write2File(s)
+                val s = getValues(event)
+                //bufferedWriter.write(s)
 
+                write2File(s)
                 currRecordCount += 1
 
-                // The following code might never have change to flush out some records which stay
-                // in the 'buffSting' and their total number is less than 'write2fileMaxCount'.
-//                if (currRecordCount % write2fileMaxCount == 0) {
-//                    write2File(buffString)
-//                    buffString = ""
-//                }
-
+                if (currRecordCount % write2fileMaxCount == 0) {
+                    bufferedWriter?.flush()
+                }
 
                 if (currRecordCount >= maxRecordInFile) {
                     currRecordCount = 0
@@ -112,10 +121,16 @@ open class GeneralSensor (
         }
     }
 
+    private fun flushBuffer() {
+        bufferedWriter?.flush()
+        bufferedWriter?.close()
+    }
+
     private fun write2File(data: String) {
         try {
-            fileHandler.appendText(data)
+            bufferedWriter?.write(data)
         } catch (e: Exception) {
+            broadcastMessage("writing to file error")
             e.printStackTrace()
         }
     }
@@ -151,6 +166,9 @@ open class GeneralSensor (
         Log.d("Debug","Unregister ${getSensorTypeName()}")
 
         if (isRunning) {
+            // Flush buffer to file before stop working
+            flushBuffer()
+
             // Unregister sensor events
             sensorManager.unregisterListener(listener, sensor)
 
@@ -162,6 +180,13 @@ open class GeneralSensor (
             currRecordCount = 0
             isRunning = false
         }
+    }
+
+    private fun broadcastMessage(msg: String) {
+        //Log.d("debug", "broadcastMessage")
+        val broadcastIntent = Intent("sensor_logging")
+        broadcastIntent.putExtra("Message", msg)
+        LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent)
     }
 
 }

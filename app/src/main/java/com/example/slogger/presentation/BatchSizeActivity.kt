@@ -21,13 +21,13 @@ class BatchSizeActivity : AppCompatActivity() {
         // set the view
         val batchSize = intent.getIntExtra("BatchSize", 1)
         editText = findViewById(R.id.batchSizeEditText)
-        editText.text = batchSize.toString()
+        editText.text = batchSize.toString().trim()
 
         // event listener
         val saveButton = findViewById<Button>(R.id.saveButton)
         saveButton.setOnClickListener{
             val res = Intent()
-            res.putExtra("BatchSize", editText.text.toString())
+            res.putExtra("BatchSize", editText.text.toString().trim())
             setResult(Activity.RESULT_OK, res)
             finish()
         }
