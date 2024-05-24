@@ -20,7 +20,7 @@ open class GeneralSensor (
     private val freq: Int,
     private val maxRecordInFile: Int,
 ) {
-    private var sensor = sensorManager.getDefaultSensor(type)!!
+    private var sensor = sensorManager.getDefaultSensor(type, true)!!
     private lateinit var fileHandler: File
 
     private var filename = ""
