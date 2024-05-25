@@ -1,24 +1,18 @@
 plugins {
-    id("com.android.application")
+    id("com.android.library")
     id("org.jetbrains.kotlin.android")
     kotlin("plugin.serialization")
 }
 
-
 android {
-    namespace = "com.example.slogger"
+    namespace = "com.example.sloggerlib"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.slogger"
         minSdk = 31
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.6.1"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
 
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -79,15 +73,9 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.compose.runtime:runtime:1.6.7")
-    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
 
 
-
-    implementation(project(":sloggerlib"))
-
-
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }

@@ -11,16 +11,14 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.example.slogger.R
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.w3c.dom.Text
 import java.io.File
 import java.io.FileOutputStream
 
 class FileStatsActivity : AppCompatActivity() {
     private lateinit var editText: TextView
-    private lateinit var configParams: ConfigParams
+    private lateinit var configParams: com.example.sloggerlib.ConfigParams
     private var configFile = "config.txt"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +34,7 @@ class FileStatsActivity : AppCompatActivity() {
         var bodyFileCount = 0
 
         val files = filesDir.listFiles()
-        for (file in files) {
+        for (file in files!!) {
             if (file.name.contains("Accel")) {
                 accelFileCount += 1
             } else if (file.name.contains("Gyro")) {
@@ -69,8 +67,8 @@ class FileStatsActivity : AppCompatActivity() {
             }
 
             alertDialogBuilder.setPositiveButton("Yes") { _,_ ->
-                var files = filesDir.listFiles()
-                for (file in files!!) {
+                val localFiles = filesDir.listFiles()
+                for (file in localFiles!!) {
                     if (file.name != "config.txt") {
                         file.delete()
                     }
@@ -118,7 +116,7 @@ class FileStatsActivity : AppCompatActivity() {
             val s = file.bufferedReader().readLine()
             Json.decodeFromString(s)
         } else {
-            ConfigParams("None")
+            com.example.sloggerlib.ConfigParams("None")
         }
     }
 }

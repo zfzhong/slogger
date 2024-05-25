@@ -17,6 +17,11 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault"
         android:usesCleartextTraffic="true">
+
+        <service
+            android:name="com.example.sloggerlib.UploadFileService"
+            android:enabled="true" />
+
         <activity
             android:name=".presentation.BatchSizeActivity"
             android:exported="false"
@@ -81,10 +86,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".presentation.SensorLoggingService" />
+        <service android:name="com.example.sloggerlib.SensorLoggingService" />
 
         <receiver
-            android:name=".presentation.StartLoggingAlarmReceiver"
+            android:name="com.example.sloggerlib.StartLoggingAlarmReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -92,7 +97,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".presentation.StopLoggingAlarmReceiver"
+            android:name="com.example.sloggerlib.StopLoggingAlarmReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

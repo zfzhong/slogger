@@ -3,13 +3,11 @@ package com.example.slogger.presentation
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -18,16 +16,14 @@ import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
 import com.example.slogger.R
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import java.io.File
 import java.io.FileOutputStream
 
 class ConfigListActivity : AppCompatActivity() {
     private var configFile = "config.txt"
-    private lateinit var configParams: ConfigParams
+    private lateinit var configParams: com.example.sloggerlib.ConfigParams
     private lateinit var nameView:TextView
     private lateinit var startTimeView: TextView
     private lateinit var endTimeView: TextView
@@ -82,8 +78,8 @@ class ConfigListActivity : AppCompatActivity() {
                 val t = data.getIntExtra("Timestamp", 0)
 
                 //Log.d("Debug", "$type, $d, $t")
-                val hh = String.format("%02d", getHour(t))
-                val mm = String.format("%02d", getMinute(t))
+                val hh = String.format("%02d", com.example.sloggerlib.getHour(t))
+                val mm = String.format("%02d", com.example.sloggerlib.getMinute(t))
 
                 if (type == "StartTime") {
                     configParams.startDate = d
@@ -126,22 +122,22 @@ class ConfigListActivity : AppCompatActivity() {
                 when (tag) {
                     "AccelFreq" -> {
                         configParams.accelFreq = freq
-                        configList[4].value = freq2mode(freq)
+                        configList[4].value = com.example.sloggerlib.freq2mode(freq)
                         configAdapter.notifyItemChanged(4)
                     }
                     "GyroFreq" -> {
                         configParams.gyroFreq = freq
-                        configList[5].value = freq2mode(freq)
+                        configList[5].value = com.example.sloggerlib.freq2mode(freq)
                         configAdapter.notifyItemChanged(5)
                     }
                     "HeartFreq" -> {
                         configParams.heartFreq = freq
-                        configList[6].value = freq2mode(freq)
+                        configList[6].value = com.example.sloggerlib.freq2mode(freq)
                         configAdapter.notifyItemChanged(6)
                     }
                     "OffBodyFreq" -> {
                         configParams.offbodyFreq = freq
-                        configList[7].value = freq2mode(freq)
+                        configList[7].value = com.example.sloggerlib.freq2mode(freq)
                         configAdapter.notifyItemChanged(7)
                     }
                 }
@@ -225,7 +221,7 @@ class ConfigListActivity : AppCompatActivity() {
             val s = file.bufferedReader().readLine()
             Json.decodeFromString(s)
         } else {
-            ConfigParams("None")
+            com.example.sloggerlib.ConfigParams("None")
         }
     }
 
@@ -308,13 +304,13 @@ class ConfigListActivity : AppCompatActivity() {
             val intent = Intent(this, DeviceTimeActivity::class.java)
 
             intent.putExtra("Type", "Start")
-            intent.putExtra("Year", getYear(configParams.startDate))
-            intent.putExtra("Month", getMonth(configParams.startDate))
-            intent.putExtra("Day", getDay(configParams.startDate))
+            intent.putExtra("Year", com.example.sloggerlib.getYear(configParams.startDate))
+            intent.putExtra("Month", com.example.sloggerlib.getMonth(configParams.startDate))
+            intent.putExtra("Day", com.example.sloggerlib.getDay(configParams.startDate))
 
-            intent.putExtra("Hour", getHour(configParams.startTimestamp))
-            intent.putExtra("Minute", getMinute(configParams.startTimestamp))
-            intent.putExtra("Second", getSecond(configParams.startTimestamp))
+            intent.putExtra("Hour", com.example.sloggerlib.getHour(configParams.startTimestamp))
+            intent.putExtra("Minute", com.example.sloggerlib.getMinute(configParams.startTimestamp))
+            intent.putExtra("Second", com.example.sloggerlib.getSecond(configParams.startTimestamp))
 
             startEndTimeResultLauncher.launch(intent)
         }
@@ -323,13 +319,13 @@ class ConfigListActivity : AppCompatActivity() {
             val intent = Intent(this, DeviceTimeActivity::class.java)
 
             intent.putExtra("Type", "End")
-            intent.putExtra("Year", getYear(configParams.endDate))
-            intent.putExtra("Month", getMonth(configParams.endDate))
-            intent.putExtra("Day", getDay(configParams.endDate))
+            intent.putExtra("Year", com.example.sloggerlib.getYear(configParams.endDate))
+            intent.putExtra("Month", com.example.sloggerlib.getMonth(configParams.endDate))
+            intent.putExtra("Day", com.example.sloggerlib.getDay(configParams.endDate))
 
-            intent.putExtra("Hour", getHour(configParams.endTimestamp))
-            intent.putExtra("Minute", getMinute(configParams.endTimestamp))
-            intent.putExtra("Second", getSecond(configParams.endTimestamp))
+            intent.putExtra("Hour", com.example.sloggerlib.getHour(configParams.endTimestamp))
+            intent.putExtra("Minute", com.example.sloggerlib.getMinute(configParams.endTimestamp))
+            intent.putExtra("Second", com.example.sloggerlib.getSecond(configParams.endTimestamp))
 
             startEndTimeResultLauncher.launch(intent)
         }
@@ -382,32 +378,34 @@ class ConfigListActivity : AppCompatActivity() {
 
         var yyyymmdd = configParams.getStartDate()
         var timestamp = configParams.startTimestamp
-        var hh = String.format("%02d", getHour(timestamp))
-        var mm = String.format("%02d", getMinute(timestamp))
+        var hh = String.format("%02d", com.example.sloggerlib.getHour(timestamp))
+        var mm = String.format("%02d", com.example.sloggerlib.getMinute(timestamp))
         val startTime = ConfigItem("StartTime", "Start", "$yyyymmdd $hh:$mm")
         configList.add(startTime)
 
         yyyymmdd = configParams.getEndDate()
         timestamp = configParams.endTimestamp
-        hh = String.format("%02d", getHour(timestamp))
-        mm = String.format("%02d", getMinute(timestamp))
+        hh = String.format("%02d", com.example.sloggerlib.getHour(timestamp))
+        mm = String.format("%02d", com.example.sloggerlib.getMinute(timestamp))
         val endTime = ConfigItem("EndTime", "End", "$yyyymmdd $hh:$mm")
         configList.add(endTime)
 
         var freq = configParams.accelFreq
-        val accelFreq = ConfigItem("AccelFreq", "Accel", freq2mode(freq))
+        val accelFreq = ConfigItem("AccelFreq", "Accel", com.example.sloggerlib.freq2mode(freq))
         configList.add(accelFreq)
 
         freq = configParams.gyroFreq
-        val gyroFreq = ConfigItem("GyroFreq", "Gyro", freq2mode(freq))
+        val gyroFreq = ConfigItem("GyroFreq", "Gyro", com.example.sloggerlib.freq2mode(freq))
         configList.add(gyroFreq)
 
         freq = configParams.heartFreq
-        val heartFreq = ConfigItem("HeartFreq", "Heart", freq2mode(freq))
+        val heartFreq = ConfigItem("HeartFreq", "Heart", com.example.sloggerlib.freq2mode(freq))
         configList.add(heartFreq)
 
         freq = configParams.offbodyFreq
-        val offBodyFreq = ConfigItem("OffBodyFreq", "OffBody", freq2mode(freq))
+        val offBodyFreq = ConfigItem("OffBodyFreq", "OffBody",
+            com.example.sloggerlib.freq2mode(freq)
+        )
         configList.add(offBodyFreq)
 
         val baseURL = configParams.baseURL

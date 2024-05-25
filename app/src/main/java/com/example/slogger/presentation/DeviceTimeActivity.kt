@@ -3,7 +3,6 @@ package com.example.slogger.presentation
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatActivity
@@ -64,39 +63,39 @@ class DeviceTimeActivity : AppCompatActivity() {
         year = findViewById(R.id.year)
         year.minValue=24
         year.maxValue=30
-        year.value = getYear(yyyymmdd) % 100
+        year.value = com.example.sloggerlib.getYear(yyyymmdd) % 100
 
         year.setFormatter (formatter )
 
         month = findViewById(R.id.month)
         month.minValue = 1
         month.maxValue = 12
-        month.value = getMonth(yyyymmdd)
+        month.value = com.example.sloggerlib.getMonth(yyyymmdd)
         month.setFormatter (formatter )
 
         day = findViewById(R.id.day)
         day.minValue = 1
         day.maxValue = 31
 
-        day.value = getDay(yyyymmdd)
+        day.value = com.example.sloggerlib.getDay(yyyymmdd)
         day.setFormatter (formatter )
 
         hour = findViewById(R.id.hour)
         hour.minValue=0
         hour.maxValue=23
-        hour.value = getHour(timestamp)
+        hour.value = com.example.sloggerlib.getHour(timestamp)
         hour.setFormatter (formatter )
 
         minute = findViewById(R.id.minute)
         minute.minValue = 0
         minute.maxValue = 59
-        minute.value = getMinute(timestamp)
+        minute.value = com.example.sloggerlib.getMinute(timestamp)
         minute.setFormatter (formatter )
 
         second = findViewById(R.id.second)
         second.minValue = 0
         second.maxValue = 59
-        second.value = getSecond(timestamp)
+        second.value = com.example.sloggerlib.getSecond(timestamp)
         second.setFormatter(formatter)
 
         /* Todo

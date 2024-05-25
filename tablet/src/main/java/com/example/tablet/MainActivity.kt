@@ -4,7 +4,7 @@
  * changes to the libraries and their usages.
  */
 
-package com.example.slogger.presentation
+package com.example.tablet
 
 import android.Manifest
 import android.content.BroadcastReceiver
@@ -12,8 +12,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -28,7 +26,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,19 +49,14 @@ import com.example.sloggerlib.SensorLoggingService
 import com.example.sloggerlib.SloggerMainInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileFilter
 import java.io.FileOutputStream
-import java.lang.ref.WeakReference
-import java.nio.file.StandardWatchEventKinds
-import kotlin.math.log
 
 
 class MainActivity: ComponentActivity(), SloggerMainInterface {
@@ -219,8 +211,8 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
 
 
     private fun configure() {
-        val intent = Intent(this, ConfigListActivity::class.java)
-        startActivity(intent)
+        //val intent = Intent(this, ConfigListActivity::class.java)
+        //startActivity(intent)
     }
 
 
@@ -230,7 +222,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         // -> action: cancel startTask
         if (appState.value == AppStates.TIMING) {
             scheduler.cancelPendingStart()
-             scheduler.cancelPendingStop()
+            scheduler.cancelPendingStop()
         }
 
         // 2. previous state is LOGGING
@@ -319,7 +311,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         debugLogger.logDebug("Debug","mainActivity: onDestroy(). Slogger exited.")
 
         super.onDestroy()
-}
+    }
 
     override fun onPause() {
         super.onPause()

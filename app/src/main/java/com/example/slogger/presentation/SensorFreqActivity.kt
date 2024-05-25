@@ -41,7 +41,7 @@ class SensorFreqActivity : AppCompatActivity() {
 
         val arrayAdapter = ArrayAdapter(this, R.layout.dropdown_item, freqs)
         autoSensorView.setAdapter(arrayAdapter)
-        autoSensorView.setText(freq2mode(freq), false)
+        autoSensorView.setText(com.example.sloggerlib.freq2mode(freq), false)
 
         val button = findViewById<Button>(R.id.freqButton)
         button.setOnClickListener {
@@ -49,7 +49,7 @@ class SensorFreqActivity : AppCompatActivity() {
             res.putExtra("Tag", tag)
 
             val mode = autoSensorView.text.toString()
-            res.putExtra("Freq", mode2freq(mode, tag))
+            res.putExtra("Freq", com.example.sloggerlib.mode2freq(mode, tag))
 
             setResult(Activity.RESULT_OK, res)
 

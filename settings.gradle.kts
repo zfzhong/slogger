@@ -15,3 +15,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Slogger"
 include(":app")
+include(":tablet")
+include(":sloggerlib")
