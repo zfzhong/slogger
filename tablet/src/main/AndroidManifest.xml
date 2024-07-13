@@ -9,6 +9,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Slogger">
         <activity
+            android:name=".ConfigScrollingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_config_scrolling"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
@@ -19,6 +24,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name="com.example.sloggerlib.SensorLoggingService" />
+
+        <receiver
+            android:name="com.example.sloggerlib.StartLoggingAlarmReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.example.sloggerlib.StopLoggingAlarmReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

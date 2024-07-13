@@ -24,7 +24,14 @@ open class GeneralSensor (
     private val batchSize: Int
 ) {
     // Configure wakeup sensors
-    private var sensor = sensorManager.getDefaultSensor(type, true)!!
+
+    // This will cause crash if we run the code on macbook.
+    // To test on macbook, we should change it to
+    // private var sensor = sensorManager.getDefaultSensor(type)
+    //
+
+    //private var sensor = sensorManager.getDefaultSensor(type, true)!! // Wearable
+    private var sensor = sensorManager.getDefaultSensor(type) // Macbook
 
     private lateinit var fileHandler: File
 

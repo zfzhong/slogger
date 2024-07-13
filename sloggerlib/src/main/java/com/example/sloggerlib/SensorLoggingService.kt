@@ -65,7 +65,7 @@ class SensorLoggingService: Service() {
     }
 
     private fun start() {
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensorManager = (getSystemService(Context.SENSOR_SERVICE) as SensorManager?)!!
 
         createNotificationChannel()
 

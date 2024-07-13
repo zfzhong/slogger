@@ -7,11 +7,8 @@ import java.lang.Exception
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Period
 import java.time.ZoneId
-import java.time.chrono.ChronoLocalDate
 import java.time.temporal.ChronoUnit
-import java.util.Date
 
 /**
  * Another version of code to generate filename;

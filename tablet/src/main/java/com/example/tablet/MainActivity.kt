@@ -211,8 +211,8 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
 
 
     private fun configure() {
-        //val intent = Intent(this, ConfigListActivity::class.java)
-        //startActivity(intent)
+        val intent = Intent(this, ConfigScrollingActivity::class.java)
+        startActivity(intent)
     }
 
 
