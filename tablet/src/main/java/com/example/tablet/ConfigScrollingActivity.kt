@@ -63,7 +63,7 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
         val endTime = findViewById<TextView>(R.id.id_end_time)
         val edate = configParams.getEndDate()
         val etime = configParams.getEndTime()
-        endTime.text = "$edate $etime"
+         endTime.text = "$edate $etime"
 
         val spinner: Spinner = findViewById(R.id.id_accel_spinner)
 
@@ -91,6 +91,8 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
         saveButton.setOnClickListener {
             handleSaveButtonClick()
         }
+
+
 
     }
 

@@ -14,23 +14,44 @@
         android:orientation="vertical">
 
         <!-- Menu items -->
-        <Button
+        <EditText
+            android:id="@+id/id_device_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/device_name" />
+            android:hint="@string/device_name" />
 
-        <Button
+        <EditText
+            android:id="@+id/id_protocol"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="" />
+            android:hint="@string/protocol_name" />
+
+        <EditText
+            android:id="@+id/id_start_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/start_time" />
+
+        <EditText
+            android:id="@+id/id_end_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/end_time" />
+
+        <Spinner
+            android:id="@+id/id_accel_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/accel_title"/>
 
         <!-- Add more items as needed -->
-        <TextView
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/id_save"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:text="@string/test_text" />
+            android:text="Save" />
     </LinearLayout>
+
 
 
 

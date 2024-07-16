@@ -61,12 +61,22 @@ class LoggingScheduler(
         // Set the alarm to trigger after a specific time
         val alarmTimeMillis = System.currentTimeMillis() + ms
 
+        /**
+         * setExactAndAllowWhileIdle() only works with android 12 or higher;
+         * Kindle Fire with Fire OS 8 is with android 11 (api 30).
+         */
+        /*
         if(alarmManager.canScheduleExactAlarms()) {
             val logger = mainInterface.getLogger()
             logger.logDebug("Debug", "[StartLogging] starts in $alarmTimeMillis milliseconds.")
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStart)
         }
+        */
+
+        val logger = mainInterface.getLogger()
+        logger.logDebug("Debug", "[StartLogging] starts in $alarmTimeMillis milliseconds.")
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStart)
 
     }
 
@@ -89,12 +99,23 @@ class LoggingScheduler(
         // Set the alarm to trigger after a specific time
         val alarmTimeMillis = System.currentTimeMillis() + ms
 
+        /**
+         * setExactAndAllowWhileIdle() only works with android 12 or higher;
+         * Kindle Fire with Fire OS 8 is with android 11 (api 30).
+         */
+        /*
         if(alarmManager.canScheduleExactAlarms()) {
             val logger = mainInterface.getLogger()
             logger.logDebug("Debug", "[StopLogging] starts in $alarmTimeMillis milliseconds.")
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStop)
         }
+         */
+
+        val logger = mainInterface.getLogger()
+        logger.logDebug("Debug", "[StopLogging] starts in $alarmTimeMillis milliseconds.")
+        alarmManager.setExact(
+            AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStop)
     }
 
     fun cancelPendingStart() {

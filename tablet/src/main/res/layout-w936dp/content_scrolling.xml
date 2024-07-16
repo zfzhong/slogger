@@ -15,10 +15,49 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:text="@string/test_text" />
+            android:orientation="vertical">
+
+            <!-- Menu items -->
+            <EditText
+                android:id="@+id/id_device_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/device_name" />
+
+            <EditText
+                android:id="@+id/id_protocol"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/protocol_name" />
+
+            <EditText
+                android:id="@+id/id_start_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/start_time" />
+
+            <EditText
+                android:id="@+id/id_end_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/end_time" />
+
+            <Spinner
+                android:id="@+id/id_accel_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/accel_title"/>
+
+            <!-- Add more items as needed -->
+            <Button
+                android:id="@+id/id_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save" />
+        </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
