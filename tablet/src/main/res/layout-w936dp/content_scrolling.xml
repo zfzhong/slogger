@@ -53,6 +53,12 @@
 
             <!-- Add more items as needed -->
             <Button
+                android:id="@+id/id_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete Files" />
+
+            <Button
                 android:id="@+id/id_save"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

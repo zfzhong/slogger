@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.tablet.databinding.ActivityConfigScrollingBinding
@@ -92,8 +93,25 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
             handleSaveButtonClick()
         }
 
+        val deleteButton = findViewById<Button>(R.id.id_delete)
+        deleteButton.setOnClickListener {
+            handleDeleteButtonClick()
+        }
+    }
 
+    private fun handleDeleteButtonClick() {
+        Log.d("debug", "Delete button clicked")
+        val localFiles = filesDir.listFiles()
+        for (file in localFiles!!) {
+            if (file.name != "config.txt") {
+                file.delete()
+            }
+        }
+        configParams.lastUploadedCount = 0
+        saveConfigFile()
 
+        Toast.makeText(this@ConfigScrollingActivity, "Files deleted.", Toast.LENGTH_SHORT).show()
+        //finish()
     }
 
     private fun handleSaveButtonClick() {

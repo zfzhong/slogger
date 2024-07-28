@@ -323,6 +323,12 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         debugLogger.logDebug("Debug","mainActivity: onResume called.")
     }
 
+    override fun onStop() {
+        super.onStop()
+        debugLogger.logDebug("Debug","mainActivity: onStop called.")
+    }
+
+
 
     fun upload() {
         _appState.update {AppStates.TRANSFER}

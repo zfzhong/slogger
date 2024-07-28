@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application>
-        <service android:name=".SensorLoggingService"/>
+        <service android:name=".SensorLoggingService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false">
+        </service>
     </application>
 </manifest>

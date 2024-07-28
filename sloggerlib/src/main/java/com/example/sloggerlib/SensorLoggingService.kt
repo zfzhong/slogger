@@ -64,6 +64,11 @@ class SensorLoggingService: Service() {
         super.onCreate()
     }
 
+    override fun onDestroy() {
+        Log.d("Debug", "service destroyed")
+        super.onDestroy()
+    }
+
     private fun start() {
         sensorManager = (getSystemService(Context.SENSOR_SERVICE) as SensorManager?)!!
 
@@ -71,7 +76,7 @@ class SensorLoggingService: Service() {
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_android_black_24dp)
-            .setContentTitle("WearSlog On:")
+            .setContentTitle("Slogger On:")
             .setContentText("Logging is active")
             .build()
 
