@@ -45,11 +45,41 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/end_time" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/accel_label"
+                />
+
             <Spinner
                 android:id="@+id/id_accel_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:prompt="@string/accel_title"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/gyro_label"
+                />
+
+            <Spinner
+                android:id="@+id/id_gyro_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/gyro_title"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/ble_label"
+                />
+
+            <Spinner
+                android:id="@+id/id_ble_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/ble_title"/>
 
             <!-- Add more items as needed -->
             <Button

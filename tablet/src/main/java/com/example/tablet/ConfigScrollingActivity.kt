@@ -13,6 +13,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.application.sloggerlib.ConfigParams
+import com.application.sloggerlib.freq2mode
+import com.application.sloggerlib.mode2freq
+import com.application.sloggerlib.str2blemode
 import com.example.tablet.databinding.ActivityConfigScrollingBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.encodeToString
@@ -23,7 +27,7 @@ import java.io.FileOutputStream
 
 class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private var configFile = "config.txt"
-    private lateinit var configParams: com.example.sloggerlib.ConfigParams
+    private lateinit var configParams: ConfigParams
 
     private lateinit var binding: ActivityConfigScrollingBinding
 
@@ -66,7 +70,10 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
         val etime = configParams.getEndTime()
          endTime.text = "$edate $etime"
 
-        val spinner: Spinner = findViewById(R.id.id_accel_spinner)
+        val accelSpinner: Spinner = findViewById(R.id.id_accel_spinner)
+        val gyroSpinner: Spinner = findViewById(R.id.id_gyro_spinner)
+        val bleSpinner: Spinner = findViewById(R.id.id_ble_spinner)
+
 
         // Create an ArrayAdapter using the string array and a default spinner layout.
         ArrayAdapter.createFromResource(
@@ -79,13 +86,54 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
             // Apply the adapter to the spinner.
-            spinner.adapter = adapter
-            spinner.onItemSelectedListener = this
+            accelSpinner.adapter = adapter
+            accelSpinner.onItemSelectedListener = this
 
             // set selection
-            val accelMode = com.example.sloggerlib.freq2mode(configParams.accelFreq)
+            val accelMode = freq2mode(configParams.accelFreq)
             val pos = adapter.getPosition(accelMode)
-            spinner.setSelection(pos)
+            accelSpinner.setSelection(pos)
+        }
+
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.gyro_mode,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            Log.d("debug", "adapter")
+            // Specify the layout to use when the list of choices appears.
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+            // Apply the adapter to the spinner.
+            gyroSpinner.adapter = adapter
+            gyroSpinner.onItemSelectedListener = this
+
+            // set selection
+            val gyroMode = freq2mode(configParams.gyroFreq)
+            val pos = adapter.getPosition(gyroMode)
+            gyroSpinner.setSelection(pos)
+        }
+
+
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.ble_mode,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            Log.d("debug", "adapter")
+            // Specify the layout to use when the list of choices appears.
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+            // Apply the adapter to the spinner.
+            bleSpinner.adapter = adapter
+            bleSpinner.onItemSelectedListener = this
+
+            // set selection
+            val bleMode = configParams.bleMode.toString()
+            Log.d("Debug", "BleMode: $bleMode")
+
+            val pos = adapter.getPosition(bleMode)
+            bleSpinner.setSelection(pos)
         }
 
         val saveButton = findViewById<Button>(R.id.id_save)
@@ -120,12 +168,16 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
         val protocol = findViewById<TextView>(R.id.id_protocol).text.toString()
 
         val accelFreq = findViewById<Spinner>(R.id.id_accel_spinner).selectedItem.toString()
+        val gyroFreq = findViewById<Spinner>(R.id.id_gyro_spinner).selectedItem.toString()
+        val ble = findViewById<Spinner>(R.id.id_ble_spinner).selectedItem.toString()
 
         val startTime = findViewById<TextView>(R.id.id_start_time).text.toString()
         val endTime = findViewById<TextView>(R.id.id_end_time).text.toString()
-        Log.d("debug", "$deviceName, $protocol, $accelFreq, $startTime, $endTime")
+        Log.d("debug", "$deviceName, $protocol, $accelFreq, $startTime, $endTime, $ble")
 
-        configParams.accelFreq = com.example.sloggerlib.mode2freq(accelFreq, "Accel")
+        configParams.accelFreq = mode2freq(accelFreq, "Accel")
+        configParams.gyroFreq = mode2freq(gyroFreq, "Gyro")
+        configParams.bleMode = str2blemode(ble)
 
         configParams.deviceName = deviceName
         configParams.protocol = protocol
@@ -178,7 +230,7 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
             Log.d("debug", s)
             Json.decodeFromString(s)
         } else {
-            com.example.sloggerlib.ConfigParams("None")
+            ConfigParams("None")
         }
     }
 

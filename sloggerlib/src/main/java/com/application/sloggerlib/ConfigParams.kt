@@ -1,4 +1,4 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
 import kotlinx.serialization.Serializable
 
@@ -15,8 +15,11 @@ data class ConfigParams(
     var gyroFreq: Int = 0,
     var heartFreq: Int = 0,
     var offbodyFreq: Int = 0,
+    var bleInterval: Int = 330, // 10 seconds
+    var bleMode: BLEMode = BLEMode.OFF,
     var batchSize: Int = 1,
     var baseURL: String ="https://weardatadl.com:8443",
+    //var baseURL: String ="https://192.168.1.214:8000",
     var suffixURL: String = "/android_xfer/",
     var lastUploadedCount:Int = 0
 ) {
@@ -33,9 +36,9 @@ data class ConfigParams(
     }
 
     fun getStartDate():String {
-        val day = String.format("%02d", com.example.sloggerlib.getDay(startDate))
-        val month = String.format("%02d", com.example.sloggerlib.getMonth(startDate))
-        var year = com.example.sloggerlib.getYear(startDate)
+        val day = String.format("%02d", getDay(startDate))
+        val month = String.format("%02d", getMonth(startDate))
+        var year = getYear(startDate)
         if (year < 100) {
             year += 2000
         }
@@ -43,9 +46,9 @@ data class ConfigParams(
     }
 
     fun getEndDate():String {
-        val day = String.format("%02d", com.example.sloggerlib.getDay(endDate))
-        val month = String.format("%02d", com.example.sloggerlib.getMonth(endDate))
-        var year = com.example.sloggerlib.getYear(endDate)
+        val day = String.format("%02d", getDay(endDate))
+        val month = String.format("%02d", getMonth(endDate))
+        var year = getYear(endDate)
         if (year < 100) {
             year += 2000
         }
@@ -53,17 +56,17 @@ data class ConfigParams(
     }
 
     fun getStartTime(): String {
-        val startHour = String.format("%02d", com.example.sloggerlib.getHour(startTimestamp))
-        val startMinute = String.format("%02d", com.example.sloggerlib.getMinute(startTimestamp))
-        val startSecond = String.format("%02d", com.example.sloggerlib.getSecond(startTimestamp))
+        val startHour = String.format("%02d", getHour(startTimestamp))
+        val startMinute = String.format("%02d", getMinute(startTimestamp))
+        val startSecond = String.format("%02d", getSecond(startTimestamp))
 
         return "$startHour:$startMinute:$startSecond"
     }
 
     fun getEndTime(): String {
-        val endHour = String.format("%02d", com.example.sloggerlib.getHour(endTimestamp))
-        val endMinute = String.format("%02d", com.example.sloggerlib.getMinute(endTimestamp))
-        val endSecond = String.format("%02d", com.example.sloggerlib.getSecond(endTimestamp))
+        val endHour = String.format("%02d", getHour(endTimestamp))
+        val endMinute = String.format("%02d", getMinute(endTimestamp))
+        val endSecond = String.format("%02d", getSecond(endTimestamp))
 
         return "$endHour:$endMinute:$endSecond"
     }

@@ -1,8 +1,9 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
 import android.content.Context
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import com.application.sloggerlib.GeneralSensor
 
 class SensorHeart(
     context: Context,
@@ -14,7 +15,7 @@ class SensorHeart(
     freq: Int,
     maxRecordInFile: Int,
     batchSize: Int
-) : com.example.sloggerlib.GeneralSensor(
+) : GeneralSensor(
     context,
     sensorManager,
     type,

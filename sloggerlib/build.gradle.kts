@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.sloggerlib"
+    namespace = "com.application.sloggerlib"
     compileSdk = 34
 
     defaultConfig {

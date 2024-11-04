@@ -6,15 +6,15 @@ plugins {
 
 
 android {
-    namespace = "com.example.slogger"
+    namespace = "com.application.slogger"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.slogger"
+        applicationId = "com.application.slogger"
         minSdk = 31
         targetSdk = 33
-        versionCode = 1
-        versionName = "1.6.1"
+        versionCode = 3
+        versionName = "1.6.3"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -84,6 +84,7 @@ dependencies {
 
 
     implementation(project(":sloggerlib"))
+    implementation("androidx.activity:activity:1.9.3")
 
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))

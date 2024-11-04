@@ -40,13 +40,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.compose.material.*
-import com.example.sloggerlib.AppStates
-import com.example.sloggerlib.ConfigParams
-import com.example.sloggerlib.DebugLogger
-import com.example.sloggerlib.HttpController
-import com.example.sloggerlib.LoggingScheduler
-import com.example.sloggerlib.SensorLoggingService
-import com.example.sloggerlib.SloggerMainInterface
+import com.application.sloggerlib.AppStates
+import com.application.sloggerlib.BLEMode
+import com.application.sloggerlib.ConfigParams
+import com.application.sloggerlib.DebugLogger
+import com.application.sloggerlib.HttpController
+import com.application.sloggerlib.LoggingScheduler
+import com.application.sloggerlib.SensorLoggingService
+import com.application.sloggerlib.SloggerMainInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -57,6 +58,8 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileFilter
 import java.io.FileOutputStream
+
+private const val PERMISSIONS_REQUEST_CODE = 1
 
 
 class MainActivity: ComponentActivity(), SloggerMainInterface {
@@ -135,10 +138,28 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    private val requiredBLEPermissions = arrayOf(
+        Manifest.permission.BLUETOOTH_SCAN,
+        Manifest.permission.BLUETOOTH_CONNECT,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.BLUETOOTH_ADVERTISE
+    )
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun checkBLEPermissions() {
+        if (requiredBLEPermissions.any {
+                ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+            }) {
+            ActivityCompat.requestPermissions(this, requiredBLEPermissions, PERMISSIONS_REQUEST_CODE)
+        }
+    }
+
     override fun getLogger(): DebugLogger {
         return debugLogger
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -151,6 +172,10 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
 
         // Load existing configuration parameters
         loadConfigFile()
+
+        if (configParams.bleMode != BLEMode.OFF) {
+            checkBLEPermissions()
+        }
 
         // Initialize the DebugLogger
         debugLogger = DebugLogger(filesDir, configParams.deviceName)
@@ -331,7 +356,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
 
 
     fun upload() {
-        _appState.update {AppStates.TRANSFER}
+        _appState.update { AppStates.TRANSFER}
 
         // Load the configuration again, because user might change the server
         // info and try to upload files to another server.
@@ -341,6 +366,8 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         if (!this::httpController.isInitialized) {
             httpController = HttpController(this,configParams.getServerURL())
         }
+
+        Log.d("Debug", configParams.getServerURL())
 
         // Everytime the upload() function is called, we reset the numOfSentFiles. So
         // uploading starts from the very first file, even though that some files might

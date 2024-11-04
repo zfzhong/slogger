@@ -1,7 +1,8 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
 import android.content.Context
 import android.hardware.SensorManager
+import com.application.sloggerlib.GeneralSensor
 
 class SensorGyroscope(
     context: Context,
@@ -13,7 +14,7 @@ class SensorGyroscope(
     freq: Int,
     maxRecordInFile: Int,
     batchSize: Int
-) : com.example.sloggerlib.GeneralSensor(
+) : GeneralSensor(
     context,
     sensorManager,
     type,

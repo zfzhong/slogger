@@ -1,4 +1,4 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
 
 import android.content.Context
@@ -82,7 +82,7 @@ open class GeneralSensor (
                     val millis = System.currentTimeMillis().toString()
 
                     // 2. Create a new file for storing logging data.
-                    filename = com.example.sloggerlib.genLogFileName(
+                    filename = genLogFileName(
                         deviceName,
                         protocol,
                         getSensorTypeName(),
@@ -147,8 +147,13 @@ open class GeneralSensor (
     }
 
     public fun start() {
+        if (sensor == null) {
+            Log.d("Debug", "No ${getSensorTypeName()} sensor exists!")
+            return
+        }
+
         if (isRunning) {
-            throw java.lang.Exception("The Accelerometer is running! Can't start it again!")
+            throw java.lang.Exception("The ${getSensorTypeName()} is running! Can't start it again!")
         }
 
         isRunning = true
@@ -174,7 +179,7 @@ open class GeneralSensor (
 
         if (isRunning) {
             // Flush buffer to file before stop working
-            flushBuffer()
+            bufferedWriter?.flush()
 
             // Unregister sensor events
             sensorManager.unregisterListener(listener, sensor)

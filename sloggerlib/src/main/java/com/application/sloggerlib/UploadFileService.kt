@@ -1,4 +1,4 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
 import android.app.Service
 import android.content.Intent

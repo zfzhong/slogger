@@ -1,14 +1,10 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.annotation.RequiresApi
-import java.lang.ref.WeakReference
 import java.time.LocalDateTime
 
 class LoggingScheduler(
@@ -20,21 +16,21 @@ class LoggingScheduler(
     val endTimestamp: Int) {
 
     private val startTime = LocalDateTime.of(
-        com.example.sloggerlib.getYear(startDate),
-        com.example.sloggerlib.getMonth(startDate),
-        com.example.sloggerlib.getDay(startDate),
-        com.example.sloggerlib.getHour(startTimestamp),
-        com.example.sloggerlib.getMinute(startTimestamp),
-        com.example.sloggerlib.getSecond(startTimestamp)
+        getYear(startDate),
+        getMonth(startDate),
+        getDay(startDate),
+        getHour(startTimestamp),
+        getMinute(startTimestamp),
+        getSecond(startTimestamp)
     )
 
     private val endTime = LocalDateTime.of(
-        com.example.sloggerlib.getYear(endDate),
-        com.example.sloggerlib.getMonth(endDate),
-        com.example.sloggerlib.getDay(endDate),
-        com.example.sloggerlib.getHour(endTimestamp),
-        com.example.sloggerlib.getMinute(endTimestamp),
-        com.example.sloggerlib.getSecond(endTimestamp)
+        getYear(endDate),
+        getMonth(endDate),
+        getDay(endDate),
+        getHour(endTimestamp),
+        getMinute(endTimestamp),
+        getSecond(endTimestamp)
     )
 
     private lateinit var alarmManager: AlarmManager
@@ -145,10 +141,10 @@ class LoggingScheduler(
             // if delay is 0 or negative, the alarm will be fired immediately.
 
             //Log.d("Debug", "Schedule in future")
-            var delay = com.example.sloggerlib.getTimeDifferenceInSeconds(now, startTime)
+            var delay = getTimeDifferenceInSeconds(now, startTime)
             scheduleStartFuture(delay * 1000)
 
-            delay = com.example.sloggerlib.getTimeDifferenceInSeconds(now, endTime)
+            delay = getTimeDifferenceInSeconds(now, endTime)
             scheduleStopFuture(delay * 1000)
         }
     }

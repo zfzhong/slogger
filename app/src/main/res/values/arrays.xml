@@ -26,4 +26,11 @@
         <item>Normal</item>
     </string-array>
 
+    <string-array name="ble_mode">
+        <item>OFF</item>
+        <item>SCAN</item>
+        <item>ADVERTISE</item>
+    </string-array>
+
+
 </resources>

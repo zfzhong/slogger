@@ -1,4 +1,4 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,9 +12,10 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.application.sloggerlib.R
 import kotlinx.serialization.json.Json
 import java.io.File
-import com.example.sloggerlib.*
+import kotlin.math.exp
 
 class SensorLoggingService: Service() {
     private lateinit var sensorManager:SensorManager
@@ -24,6 +25,7 @@ class SensorLoggingService: Service() {
     private lateinit var sensorGyro: SensorGyroscope
     private lateinit var sensorHeart: SensorHeart
     private lateinit var sensorOffbody: SensorOffbody
+    private lateinit var bleScanner: BLEScanner
 
 
     private var configFile = "config.txt"
@@ -49,15 +51,13 @@ class SensorLoggingService: Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                channelId,
-                "Logging Service Channel",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
-        }
+        val serviceChannel = NotificationChannel(
+            channelId,
+            "Logging Service Channel",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(serviceChannel)
     }
 
     override fun onCreate() {
@@ -106,6 +106,8 @@ class SensorLoggingService: Service() {
         if (configParams.gyroFreq > 0) { startGyro() }
         if (configParams.heartFreq > 0) { startHeart() }
         if (configParams.offbodyFreq > 0) { startOffbody() }
+
+        if (configParams.bleMode != BLEMode.OFF) { startBLE() }
     }
 
     private fun stopSensors() {
@@ -114,9 +116,10 @@ class SensorLoggingService: Service() {
         stopGyro()
         stopHeart()
         stopOffbody()
+        stopBLE()
 
         // Stop foreground service and cancel notification
-        stopForeground(Service.STOP_FOREGROUND_REMOVE)
+        stopForeground(STOP_FOREGROUND_REMOVE)
 
         // Change App state to IDLE
         broadcastStateChange(AppStates.IDLE)
@@ -130,7 +133,7 @@ class SensorLoggingService: Service() {
     }
 
     private fun startAccel() {
-        sensorAccel = com.example.sloggerlib.SensorAccelerometer(
+        sensorAccel = SensorAccelerometer(
             this.applicationContext,
             sensorManager,
             Sensor.TYPE_ACCELEROMETER,
@@ -151,7 +154,7 @@ class SensorLoggingService: Service() {
     }
 
     private fun startGyro() {
-        sensorGyro = com.example.sloggerlib.SensorGyroscope(
+        sensorGyro = SensorGyroscope(
             this,
             sensorManager,
             Sensor.TYPE_GYROSCOPE,
@@ -172,7 +175,7 @@ class SensorLoggingService: Service() {
     }
 
     private fun startHeart() {
-        sensorHeart = com.example.sloggerlib.SensorHeart(
+        sensorHeart = SensorHeart(
             this,
             sensorManager,
             Sensor.TYPE_HEART_RATE,
@@ -193,7 +196,7 @@ class SensorLoggingService: Service() {
     }
 
     private fun startOffbody() {
-        sensorOffbody = com.example.sloggerlib.SensorOffbody(
+        sensorOffbody = SensorOffbody(
             this,
             sensorManager,
             Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT,
@@ -213,13 +216,32 @@ class SensorLoggingService: Service() {
         }
     }
 
+    private fun startBLE() {
+        Log.d("Debug", "Start BLE ...")
+        bleScanner = BLEScanner(
+            this,
+            configParams.deviceName,
+            configParams.bleMode,
+            configParams.protocol,
+            expId,
+            configParams.bleInterval,
+            maxRecordCount,
+            1500
+            )
+        bleScanner.start()
+    }
+
+    private fun stopBLE() {
+        bleScanner.stop()
+    }
+
     private fun loadConfigFile() {
         val file = File(filesDir, configFile)
         configParams = if (file.exists()) {
             val s = file.bufferedReader().readLine()
             Json.decodeFromString(s)
         } else {
-            com.example.sloggerlib.ConfigParams("None")
+            ConfigParams("None")
         }
     }
 

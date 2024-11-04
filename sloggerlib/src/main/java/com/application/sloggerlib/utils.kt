@@ -1,4 +1,4 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
 
 import android.hardware.SensorManager
@@ -193,7 +193,30 @@ fun getSecond(timestamp: Int): Int {
     return timestamp % 60
 }
 
+fun getBLEScanDurationParam(interval:Int): Int {
+    var duration: Double = 0.0
 
+    if (interval <= 4000) {
+        duration = interval * 0.5 // 50%
+    } else if (interval <= 100000) {
+        duration = interval * 0.4 // 40%
+    } else if (interval <= 200000) {
+        duration = interval * 0.2 // 20%
+    } else {
+        duration = interval * 0.1 // 10%
+    }
 
+    return duration.toInt()
+}
+
+fun str2blemode(s: String): BLEMode {
+    if (s == "SCAN") {
+        return BLEMode.SCAN
+    } else if (s == "ADVERTISE") {
+        return BLEMode.ADVERTISE
+    }
+
+    return BLEMode.OFF
+}
 
 

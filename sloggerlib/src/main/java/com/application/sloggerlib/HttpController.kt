@@ -1,20 +1,11 @@
-package com.example.sloggerlib
+package com.application.sloggerlib
 
-import android.content.Context
 import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.CertificatePinner
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.OkHttp
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -22,7 +13,6 @@ import okhttp3.Response
 import java.io.File
 import java.io.FileFilter
 import java.io.IOException
-import java.lang.ref.WeakReference
 import javax.net.ssl.X509TrustManager
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
