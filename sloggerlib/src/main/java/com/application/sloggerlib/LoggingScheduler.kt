@@ -4,7 +4,9 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import java.time.LocalDateTime
 
 class LoggingScheduler(
@@ -38,9 +40,10 @@ class LoggingScheduler(
     private lateinit var pendingIntentStop: PendingIntent
 
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun scheduleStartFuture(ms: Long) {
-        //val action = "StartLogging"
-        //Log.d("Debug", "[$action] starts in $ms milliseconds.")
+        val action = "StartLogging"
+        //Log.d("Debug", "Logging starts in $ms milliseconds.")
 
         if (!this::alarmManager.isInitialized) {
             alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -61,21 +64,26 @@ class LoggingScheduler(
          * setExactAndAllowWhileIdle() only works with android 12 or higher;
          * Kindle Fire with Fire OS 8 is with android 11 (api 30).
          */
-        /*
+
         if(alarmManager.canScheduleExactAlarms()) {
             val logger = mainInterface.getLogger()
             logger.logDebug("Debug", "[StartLogging] starts in $alarmTimeMillis milliseconds.")
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStart)
         }
-        */
+        else {
+            Log.d("Debug", "cant schedule exact alarms.")
+        }
 
+
+        /*
         val logger = mainInterface.getLogger()
         logger.logDebug("Debug", "[StartLogging] starts in $alarmTimeMillis milliseconds.")
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStart)
-
+        */
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun scheduleStopFuture(ms: Long) {
         //val action = "StopLogging"
         //Log.d("Debug", "[$action] starts in $ms milliseconds.")
@@ -99,20 +107,24 @@ class LoggingScheduler(
          * setExactAndAllowWhileIdle() only works with android 12 or higher;
          * Kindle Fire with Fire OS 8 is with android 11 (api 30).
          */
-        /*
+
         if(alarmManager.canScheduleExactAlarms()) {
             val logger = mainInterface.getLogger()
             logger.logDebug("Debug", "[StopLogging] starts in $alarmTimeMillis milliseconds.")
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStop)
         }
-         */
 
+
+        /*
         val logger = mainInterface.getLogger()
         logger.logDebug("Debug", "[StopLogging] starts in $alarmTimeMillis milliseconds.")
         alarmManager.setExact(
             AlarmManager.RTC_WAKEUP, alarmTimeMillis, pendingIntentStop)
+
+         */
     }
+
 
     fun cancelPendingStart() {
         val logger = mainInterface.getLogger()
@@ -126,6 +138,7 @@ class LoggingScheduler(
         alarmManager.cancel(pendingIntentStop)
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun scheduleLogging() {
         val now = LocalDateTime.now()
 

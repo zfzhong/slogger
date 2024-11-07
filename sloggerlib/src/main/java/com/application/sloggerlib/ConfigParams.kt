@@ -15,7 +15,7 @@ data class ConfigParams(
     var gyroFreq: Int = 0,
     var heartFreq: Int = 0,
     var offbodyFreq: Int = 0,
-    var bleInterval: Int = 330, // 10 seconds
+    var bleInterval: Int = 20, // 10 seconds
     var bleMode: BLEMode = BLEMode.OFF,
     var batchSize: Int = 1,
     var baseURL: String ="https://weardatadl.com:8443",

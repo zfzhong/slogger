@@ -7,11 +7,13 @@
 package com.example.tablet
 
 import android.Manifest
+import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -293,6 +295,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun start() {
         // This function is called immediately when the Start button is clicked.
 
@@ -346,6 +349,15 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
     override fun onResume() {
         super.onResume()
         debugLogger.logDebug("Debug","mainActivity: onResume called.")
+
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            // If not, request the SCHEDULE_EXACT_ALARM permission
+            val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+            intent.setData(Uri.fromParts("package", packageName, null));
+            startActivity(intent);
+        }
     }
 
     override fun onStop() {

@@ -62,7 +62,7 @@ class BLEScanner (
 
 
     private val scanIntervalMillis: Long = (interval * 1000).toLong() // Interval between scans
-    private val scanDurationMillis: Long = 300000 // Duration always 2000 ms
+    private val scanDurationMillis: Long = 10000 // Duration always 2000 ms
     private val handler = Handler(Looper.getMainLooper())
 
 
@@ -88,20 +88,21 @@ class BLEScanner (
     private fun startScan() {
         Log.d("Debug", "start BLE scan ...")
         val scanSettings = ScanSettings.Builder()
-            //.setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
-            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+            //.setScanMode(ScanSettings.SCAN_MODE_BALANCED)
             .build()
 
-        val scanFilters: MutableList<ScanFilter> = ArrayList()
+        //val scanFilters: MutableList<ScanFilter> = ArrayList()
 
         // Optionally, you can also filter by device name
-        scanFilters.add(
-            ScanFilter.Builder()
-                .setDeviceName("Pix07")
-                .build()
-        )
-
-        bleScanner.startScan(scanFilters, scanSettings, scanCallback)
+//        scanFilters.add(
+//            ScanFilter.Builder()
+//                .setDeviceName("Pix07")
+//                .build()
+//        )
+//
+//        bleScanner.startScan(scanFilters, scanSettings, scanCallback)
+        bleScanner.startScan(null, scanSettings, scanCallback)
     }
 
     // Start periodic scanning
@@ -204,9 +205,9 @@ class BLEScanner (
             val tsMillis = System.currentTimeMillis()
 
             val msg = "$tsMillis,$currRecordCount,${device.name},${device.address},$rssi\n"
-            Log.d("debug", msg)
+            //Log.d("debug", msg)
 
-            if (currRecordCount == 0) {
+            if (currRecordCount == 0 && bufferedWriter == null) {
                 // 1. Get current wall clock timestamp.
                 val millis = System.currentTimeMillis().toString()
 
@@ -221,19 +222,19 @@ class BLEScanner (
                     millis
                 )
 
-                Log.d("debug", "$millis, $currRecordCount: $filename")
+                //Log.d("debug", "$millis, $currRecordCount: $filename")
 
                 // open the new file
                 fileHandler = File(context.filesDir, filename)
-
-                // close previous bufferedWriter
-                bufferedWriter?.flush()
-                bufferedWriter?.close()
                 bufferedWriter = fileHandler.bufferedWriter()
             }
 
-            write2File(msg)
-            currRecordCount += 1
+            if (device.name != null) {
+                write2File(msg)
+                currRecordCount += 1
+            }
+
+
 
             if (currRecordCount % write2fileMaxCount == 0) {
                 bufferedWriter?.flush()
@@ -242,6 +243,11 @@ class BLEScanner (
             if (currRecordCount >= maxRecordInFile) {
                 currRecordCount = 0
                 fileSeqNum += 1
+
+                // close previous bufferedWriter
+                bufferedWriter?.flush()
+                bufferedWriter?.close()
+                bufferedWriter = null
             }
 
         }
