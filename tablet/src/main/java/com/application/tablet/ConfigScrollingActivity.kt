@@ -1,4 +1,4 @@
-package com.example.tablet
+package com.application.tablet
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -17,7 +17,8 @@ import com.application.sloggerlib.ConfigParams
 import com.application.sloggerlib.freq2mode
 import com.application.sloggerlib.mode2freq
 import com.application.sloggerlib.str2blemode
-import com.example.tablet.databinding.ActivityConfigScrollingBinding
+import com.application.tablet.R
+import com.application.tablet.databinding.ActivityConfigScrollingBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

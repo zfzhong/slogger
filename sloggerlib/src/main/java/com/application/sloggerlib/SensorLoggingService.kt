@@ -142,7 +142,8 @@ class SensorLoggingService: Service() {
             expId,
             configParams.accelFreq,
             maxRecordCount,
-            configParams.batchSize
+            configParams.batchSize,
+            configParams.isWearable
         )
         sensorAccel.start()
     }
@@ -163,7 +164,8 @@ class SensorLoggingService: Service() {
             expId,
             configParams.gyroFreq,
             maxRecordCount,
-            configParams.batchSize
+            configParams.batchSize,
+            configParams.isWearable
         )
         sensorGyro.start()
     }
@@ -184,7 +186,8 @@ class SensorLoggingService: Service() {
             expId,
             configParams.heartFreq,
             maxRecordCount,
-            configParams.batchSize
+            configParams.batchSize,
+            configParams.isWearable
         )
         sensorHeart.start()
     }
@@ -205,7 +208,8 @@ class SensorLoggingService: Service() {
             expId,
             configParams.offbodyFreq,
             maxRecordCount,
-            configParams.batchSize
+            configParams.batchSize,
+            configParams.isWearable
         )
         sensorOffbody.start()
     }
@@ -226,7 +230,7 @@ class SensorLoggingService: Service() {
             expId,
             configParams.bleInterval,
             maxRecordCount,
-            1500
+            200
             )
         bleScanner.start()
     }

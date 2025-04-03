@@ -4,7 +4,7 @@
  * changes to the libraries and their usages.
  */
 
-package com.example.tablet
+package com.application.tablet
 
 import android.Manifest
 import android.app.AlarmManager
@@ -142,6 +142,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
 
     @RequiresApi(Build.VERSION_CODES.S)
     private val requiredBLEPermissions = arrayOf(
+        Manifest.permission.FOREGROUND_SERVICE_LOCATION,
         Manifest.permission.BLUETOOTH_SCAN,
         Manifest.permission.BLUETOOTH_CONNECT,
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -150,6 +151,23 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
 
     @RequiresApi(Build.VERSION_CODES.S)
     fun checkBLEPermissions() {
+        var requiredBLEPermissions = arrayOf(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.BLUETOOTH_ADVERTISE
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // API 34
+           requiredBLEPermissions = arrayOf(
+               Manifest.permission.FOREGROUND_SERVICE_LOCATION,
+               Manifest.permission.BLUETOOTH_SCAN,
+               Manifest.permission.BLUETOOTH_CONNECT,
+               Manifest.permission.ACCESS_FINE_LOCATION,
+               Manifest.permission.BLUETOOTH_ADVERTISE
+           )
+        }
+
         if (requiredBLEPermissions.any {
                 ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
             }) {
@@ -171,9 +189,12 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
             }
         }
 
-
-        // Load existing configuration parameters
+        // Load existing configuration parameters upon starting SloggerTablet
         loadConfigFile()
+
+        // for Tablet, set isWearable to 'false'
+        configParams.isWearable = false
+        saveConfigFile()
 
         if (configParams.bleMode != BLEMode.OFF) {
             checkBLEPermissions()
@@ -209,7 +230,6 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
             .registerReceiver(stateReceiver, IntentFilter("sensor_logging"))
 
         setContent {
-
             val currState by appState.collectAsStateWithLifecycle()
 
             Scaffold(
@@ -326,7 +346,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
             val s = file.bufferedReader().readLine()
             Json.decodeFromString(s)
         } else {
-            ConfigParams("None")
+            ConfigParams()
         }
     }
 
@@ -335,6 +355,12 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
     }
 
     override fun onDestroy() {
+        // Here we check whether the sensors get stopped.
+        if (appState.value != AppStates.IDLE) {
+            // stop all sensors
+            stop()
+        }
+
         LocalBroadcastManager.getInstance(this).unregisterReceiver(stateReceiver)
         debugLogger.logDebug("Debug","mainActivity: onDestroy(). Slogger exited.")
 

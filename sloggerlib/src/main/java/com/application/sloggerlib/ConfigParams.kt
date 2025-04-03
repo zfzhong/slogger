@@ -21,7 +21,8 @@ data class ConfigParams(
     var baseURL: String ="https://weardatadl.com:8443",
     //var baseURL: String ="https://192.168.1.214:8000",
     var suffixURL: String = "/android_xfer/",
-    var lastUploadedCount:Int = 0
+    var lastUploadedCount:Int = 0,
+    var isWearable:Boolean = true
 ) {
     fun getServerURL(): String {
         return baseURL + suffixURL

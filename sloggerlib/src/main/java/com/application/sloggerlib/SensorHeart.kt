@@ -14,7 +14,8 @@ class SensorHeart(
     expId: String,
     freq: Int,
     maxRecordInFile: Int,
-    batchSize: Int
+    batchSize: Int,
+    isWearable: Boolean
 ) : GeneralSensor(
     context,
     sensorManager,
@@ -24,7 +25,8 @@ class SensorHeart(
     expId,
     freq,
     maxRecordInFile,
-    batchSize)
+    batchSize,
+    isWearable)
 {
     // The heart rate sensor differs from Accelerometer/Gyroscope in
     // the logging file format. We need the following function to get

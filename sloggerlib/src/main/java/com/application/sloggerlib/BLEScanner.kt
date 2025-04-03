@@ -28,6 +28,7 @@ import androidx.core.app.ComponentActivity
 import androidx.core.content.ContextCompat
 import java.io.BufferedWriter
 import java.io.File
+import java.io.IOException
 
 
 class BLEScanner (
@@ -137,6 +138,7 @@ class BLEScanner (
         bleScanner.stopScan(scanCallback)
 
         if (!isRunning) {
+            Log.d("Debug", "flush BLE, scanning finished")
             flushBuffer()
         }
     }
@@ -230,11 +232,10 @@ class BLEScanner (
             }
 
             if (device.name != null) {
+                // Only log the BLE device when it has a device name.
                 write2File(msg)
                 currRecordCount += 1
             }
-
-
 
             if (currRecordCount % write2fileMaxCount == 0) {
                 bufferedWriter?.flush()
@@ -272,8 +273,14 @@ class BLEScanner (
     }
 
     private fun flushBuffer() {
-        bufferedWriter?.flush()
-        bufferedWriter?.close()
+        try {
+            bufferedWriter?.flush()
+            bufferedWriter?.close()
+            bufferedWriter = null
+        } catch (e: IOException) {
+            // Handle the exception, e.g., log the error or display a message
+            Log.d("Debug","flushBuffer() error: ${e.message}")
+        }
     }
 
     private fun resetScanner() {

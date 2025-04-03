@@ -21,7 +21,8 @@ open class GeneralSensor (
     private val expId: String,
     private val freq: Int,
     private val maxRecordInFile: Int,
-    private val batchSize: Int
+    private val batchSize: Int,
+    private val isWearable: Boolean
 ) {
     // Configure wakeup sensors
 
@@ -29,9 +30,9 @@ open class GeneralSensor (
     // To test on macbook, we should change it to
     // private var sensor = sensorManager.getDefaultSensor(type)
     //
+    // 03/27/2025: We need to initialize the sensor
 
-    //private var sensor = sensorManager.getDefaultSensor(type, true)!! // Wearable
-    private var sensor = sensorManager.getDefaultSensor(type) // Macbook
+    private var sensor: Sensor
 
     private lateinit var fileHandler: File
 
@@ -47,6 +48,16 @@ open class GeneralSensor (
     // Write once every 500 records
     //private val write2fileMaxCount = 500
     private val write2fileMaxCount = batchSize
+
+    // Initialize the sensor based on the App type (Wearable App or Not)
+    init {
+        //Log.d("debug", "isWearable $isWearable")
+        sensor = if (isWearable) {
+            sensorManager.getDefaultSensor(type, true)!! // Wearable
+        } else {
+            sensorManager.getDefaultSensor(type)!! // Macbook
+        }
+    }
 
     private fun getSensorTypeName(): String {
         if (type == Sensor.TYPE_HEART_RATE) {
@@ -147,11 +158,6 @@ open class GeneralSensor (
     }
 
     public fun start() {
-        if (sensor == null) {
-            Log.d("Debug", "No ${getSensorTypeName()} sensor exists!")
-            return
-        }
-
         if (isRunning) {
             throw java.lang.Exception("The ${getSensorTypeName()} is running! Can't start it again!")
         }

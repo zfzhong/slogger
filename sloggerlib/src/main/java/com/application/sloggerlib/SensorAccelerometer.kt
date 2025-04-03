@@ -13,7 +13,8 @@ class SensorAccelerometer(
     expId: String,
     freq: Int,
     maxRecordInFile: Int,
-    batchSize: Int
+    batchSize: Int,
+    isWearable: Boolean
 ) : GeneralSensor(
     context,
     sensorManager,
@@ -23,5 +24,6 @@ class SensorAccelerometer(
     expId,
     freq,
     maxRecordInFile,
-    batchSize)
+    batchSize,
+    isWearable)
 {}

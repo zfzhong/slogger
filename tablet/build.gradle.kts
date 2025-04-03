@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tablet"
+    namespace = "com.application.tablet"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.tablet"
+        applicationId = "com.application.tablet"
         minSdk = 30
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.6.3"
+        versionCode = 5
+        versionName = "1.6.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -27,6 +27,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {

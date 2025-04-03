@@ -21,12 +21,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Slogger">
         <activity
-            android:name=".ConfigScrollingActivity"
+            android:name="com.application.tablet.ConfigScrollingActivity"
             android:exported="false"
             android:label="@string/title_activity_config_scrolling"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.application.tablet.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Slogger">

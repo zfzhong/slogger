@@ -84,7 +84,6 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         override fun onReceive(context: Context?, intent: Intent?) {
 
             // Handle the received data here
-
             if (intent?.action.toString() == "config_change" || intent?.action.toString() == "sensor_logging") {
                 val msg = intent?.getStringExtra("Message").toString()
                 //Log.d("debug", msg)
@@ -208,7 +207,6 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         debugLogger = DebugLogger(filesDir, configParams.deviceName)
         debugLogger.logDebug("Debug","mainActivity: onCreate(). Slogger started.")
 
-
         //sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         //accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
         //gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)!!
@@ -234,7 +232,6 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
             .registerReceiver(stateReceiver, IntentFilter("sensor_logging"))
 
         setContent {
-
             val currState by appState.collectAsStateWithLifecycle()
 
             Scaffold(
@@ -351,7 +348,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
             val s = file.bufferedReader().readLine()
             Json.decodeFromString(s)
         } else {
-            ConfigParams("None")
+            ConfigParams()
         }
     }
 
@@ -482,7 +479,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         for (file in files!!) {
             Log.d("Debug","mainActivity: delete, ${file.name}")
             if (file.name != "config.txt") {
-                file.delete()
+                //file.delete()
             }
         }
     }

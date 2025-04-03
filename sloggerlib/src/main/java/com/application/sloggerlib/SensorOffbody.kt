@@ -4,6 +4,7 @@ import android.content.Context
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
 import com.application.sloggerlib.GeneralSensor
+import com.google.android.gms.wearable.Wearable
 
 class SensorOffbody(
     context: Context,
@@ -14,7 +15,8 @@ class SensorOffbody(
     expId: String,
     freq: Int,
     maxRecordInFile: Int,
-    batchSize: Int
+    batchSize: Int,
+    isWearable: Boolean
 ) : GeneralSensor(
     context,
     sensorManager,
@@ -24,7 +26,8 @@ class SensorOffbody(
     expId,
     freq,
     maxRecordInFile,
-    batchSize)
+    batchSize,
+    isWearable)
 {
     // The Motion sensor differs from Accelerometer/Gyroscope in
     // the logging file format. We need the following function to get

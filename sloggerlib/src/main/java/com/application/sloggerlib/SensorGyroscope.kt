@@ -13,7 +13,8 @@ class SensorGyroscope(
     expId: String,
     freq: Int,
     maxRecordInFile: Int,
-    batchSize: Int
+    batchSize: Int,
+    isWearable: Boolean
 ) : GeneralSensor(
     context,
     sensorManager,
@@ -23,6 +24,7 @@ class SensorGyroscope(
     expId,
     freq,
     maxRecordInFile,
-    batchSize)
+    batchSize,
+    isWearable)
 
 {}
