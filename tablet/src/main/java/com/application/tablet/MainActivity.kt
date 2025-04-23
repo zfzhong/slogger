@@ -13,6 +13,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
@@ -173,6 +174,14 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
             }) {
             ActivityCompat.requestPermissions(this, requiredBLEPermissions, PERMISSIONS_REQUEST_CODE)
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // No UI changes needed—your simple layout works as-is in both orientations
+        debugLogger = DebugLogger(filesDir, configParams.deviceName)
+        debugLogger.logDebug("Debug","mainActivity: configuration change.")
+
     }
 
     override fun getLogger(): DebugLogger {
