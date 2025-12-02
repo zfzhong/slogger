@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ConfigScrollingActivity"
+    tools:context="com.application.tablet.ConfigScrollingActivity"
     tools:showIn="@layout/activity_config_scrolling">
 
     <androidx.core.widget.NestedScrollView
@@ -80,6 +80,51 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:prompt="@string/ble_title"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/ble_scan_power"
+                />
+            <Spinner
+                android:id="@+id/id_ble_scan_power_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+            <EditText
+                android:id="@+id/id_ble_scan_interval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="BLE Scan/Rest intervals: (e.g., 20/20)" />
+
+            <EditText
+                android:id="@+id/id_ble_scan_filter_device_names"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="BLE Filter Device Names: (e.g., Pix07,Pix08)" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/ble_ad_mode"
+                />
+            <Spinner
+                android:id="@+id/id_ble_ad_mode_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/ble_ad_power"
+                />
+            <Spinner
+                android:id="@+id/id_ble_ad_power_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
 
             <!-- Add more items as needed -->
             <Button

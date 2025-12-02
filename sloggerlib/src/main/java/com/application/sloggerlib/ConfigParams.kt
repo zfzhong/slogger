@@ -15,8 +15,13 @@ data class ConfigParams(
     var gyroFreq: Int = 0,
     var heartFreq: Int = 0,
     var offbodyFreq: Int = 0,
-    var bleInterval: Int = 20, // 10 seconds
+    var bleScanInterval: Int = 20, // BLE scanning duration
+    var bleRestInterval: Int = 20, // BLE scan resting interval
     var bleMode: BLEMode = BLEMode.OFF,
+    var bleScanPower: BLEScanPower = BLEScanPower.LowPower,
+    var bleAdMode: BLEAdMode = BLEAdMode.LowPower,
+    var bleAdPower: BLEAdPower = BLEAdPower.UltraLow,
+    var bleFilterDeviceNames: String = "",
     var batchSize: Int = 1,
     var baseURL: String ="https://weardatadl.com:8443",
     //var baseURL: String ="https://192.168.1.214:8000",

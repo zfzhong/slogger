@@ -1,4 +1,4 @@
-package com.example.tablet.ui.theme
+package com.application.tablet.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

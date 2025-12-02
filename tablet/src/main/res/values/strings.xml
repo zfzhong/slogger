@@ -12,7 +12,12 @@
     <string name="end_time">"End Time: YYYY-MM-DD hh:mm:ss"</string>
     <string name="accel_label">Accelerometer:</string>
     <string name="gyro_label">Gyroscope:</string>
-    <string name="ble_label">Bluetooth LE:</string>
+
+    <string name="ble_label">BLE Ad/Scan:</string>
+    <string name="ble_scan_power">BLE Scan Power:</string>
+    <string name="ble_scan_interval">BEL Scan/Rest Interval (s):</string>
+    <string name="ble_ad_mode">BLE Ad Mode:</string>
+    <string name="ble_ad_power">BLE Ad Power:</string>
 
     <string-array name="accel_mode">
         <item>Off</item>
@@ -34,6 +39,26 @@
         <item>OFF</item>
         <item>SCAN</item>
         <item>ADVERTISE</item>
+    </string-array>
+
+    <string-array name="ble_scan_power">
+        <item>LowPower</item>
+        <item>Balanced</item>
+        <item>LowLatency</item>
+        <item>Opportunistic</item>
+    </string-array>
+
+    <string-array name="ble_ad_mode">
+        <item>LowPower</item>
+        <item>Balanced</item>
+        <item>LowLatency</item>
+    </string-array>
+
+    <string-array name="ble_ad_power">
+        <item>UltraLow</item>
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
     </string-array>
 
 

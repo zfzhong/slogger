@@ -174,7 +174,15 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
 
         val startTime = findViewById<TextView>(R.id.id_start_time).text.toString()
         val endTime = findViewById<TextView>(R.id.id_end_time).text.toString()
+
         Log.d("debug", "$deviceName, $protocol, $accelFreq, $startTime, $endTime, $ble")
+
+        //val bleScanRestIntervals = findViewById<TextView>(R.id.id_ble_scan_interval).text.toString()
+        //val bleScanFilterDeviceNames = findViewById<TextView>(R.id.id_ble_scan_filter_device_names).text.toString()
+
+        //val bleScanPower = findViewById<Spinner>(R.id.id_ble_scan_power_spinner).selectedItem.toString()
+        //val bleAdMode = findViewById<Spinner>(R.id.id_ble_ad_mode_spinner).selectedItem.toString()
+        //val bleAdPower = findViewById<Spinner>(R.id.id_ble_ad_power_spinner).selectedItem.toString()
 
         configParams.accelFreq = mode2freq(accelFreq, "Accel")
         configParams.gyroFreq = mode2freq(gyroFreq, "Gyro")

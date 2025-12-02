@@ -228,7 +228,7 @@ class SensorLoggingService: Service() {
             configParams.bleMode,
             configParams.protocol,
             expId,
-            configParams.bleInterval,
+            configParams.bleRestInterval,
             maxRecordCount,
             200
             )

@@ -1,4 +1,4 @@
-package com.example.tablet.ui.theme
+package com.application.tablet.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

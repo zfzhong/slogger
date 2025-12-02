@@ -13,6 +13,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
@@ -112,6 +113,11 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // No UI changes needed—your simple layout works as-is in both orientations
+        Log.d("debug", "configuration changed")
+    }
     private fun hasBodySensorsPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             this, Manifest.permission.BODY_SENSORS
