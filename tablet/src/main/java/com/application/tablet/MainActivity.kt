@@ -181,6 +181,14 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // No UI changes needed—your simple layout works as-is in both orientations
+        debugLogger = DebugLogger(filesDir, configParams.deviceName)
+        debugLogger.logDebug("Debug","mainActivity: configuration change.")
+
+    }
+
     override fun getLogger(): DebugLogger {
         return debugLogger
     }
