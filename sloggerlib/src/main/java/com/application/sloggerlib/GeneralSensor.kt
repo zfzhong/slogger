@@ -53,7 +53,12 @@ open class GeneralSensor (
     init {
         //Log.d("debug", "isWearable $isWearable")
         sensor = if (isWearable) {
-            sensorManager.getDefaultSensor(type, true)!! // Wearable
+            try {
+                sensorManager.getDefaultSensor(type, true)!! // Wearable
+            }
+            catch (ex: Exception) {
+                sensorManager.getDefaultSensor(type, false)!! // Wearable but sleepy
+            }
         } else {
             sensorManager.getDefaultSensor(type)!! // Macbook
         }

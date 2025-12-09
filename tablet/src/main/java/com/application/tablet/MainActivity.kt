@@ -113,11 +113,11 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
+    //override fun onConfigurationChanged(newConfig: Configuration) {
+        //super.onConfigurationChanged(newConfig)
         // No UI changes needed—your simple layout works as-is in both orientations
-        Log.d("debug", "configuration changed")
-    }
+        //Log.d("debug", "configuration changed")
+    //}
     private fun hasBodySensorsPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             this, Manifest.permission.BODY_SENSORS
