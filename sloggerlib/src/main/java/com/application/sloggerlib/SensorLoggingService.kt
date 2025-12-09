@@ -236,7 +236,9 @@ class SensorLoggingService: Service() {
     }
 
     private fun stopBLE() {
-        bleScanner.stop()
+        if (this::bleScanner.isInitialized) {
+            bleScanner.stop()
+        }
     }
 
     private fun loadConfigFile() {
