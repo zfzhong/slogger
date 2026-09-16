@@ -32,7 +32,12 @@ open class GeneralSensor (
     //
     // 03/27/2025: We need to initialize the sensor
 
-    private var sensor: Sensor
+    // Nullable on purpose. TYPE_ACCELEROMETER and TYPE_GYROSCOPE are physical
+    // parts and always present, but the composite sensors - linear
+    // acceleration, gravity - are synthesised by the platform and a given
+    // watch may simply not offer one. The previous !! turned that into a crash
+    // at start of logging, which is the worst possible moment.
+    private var sensor: Sensor?
 
     private lateinit var fileHandler: File
 
@@ -53,9 +58,9 @@ open class GeneralSensor (
     init {
         //Log.d("debug", "isWearable $isWearable")
         sensor = if (isWearable) {
-            sensorManager.getDefaultSensor(type, true)!! // Wearable
+            sensorManager.getDefaultSensor(type, true) // Wearable
         } else {
-            sensorManager.getDefaultSensor(type)!! // Macbook
+            sensorManager.getDefaultSensor(type)       // Macbook
         }
     }
 
@@ -66,6 +71,8 @@ open class GeneralSensor (
             return "Gyro"
         } else if (type == Sensor.TYPE_ACCELEROMETER) {
             return "Accel"
+        } else if (type == Sensor.TYPE_LINEAR_ACCELERATION) {
+            return "Linear"
         } else if (type == Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT) {
             return "Presence" // Fitbit convention
         }
@@ -157,9 +164,23 @@ open class GeneralSensor (
         return isRunning
     }
 
+    public fun hasSensor(): Boolean {
+        return sensor != null
+    }
+
     public fun start() {
         if (isRunning) {
             throw java.lang.Exception("The ${getSensorTypeName()} is running! Can't start it again!")
+        }
+
+        val s = sensor
+        if (s == null) {
+            // Not an error worth stopping the run for: the other sensors are
+            // still recording, and the absence is worth seeing rather than
+            // guessing at later from a missing file.
+            Log.d("Debug", "no ${getSensorTypeName()} sensor on this device")
+            broadcastMessage("no ${getSensorTypeName()} sensor on this device")
+            return
         }
 
         isRunning = true
@@ -169,7 +190,7 @@ open class GeneralSensor (
             // register event to start accelerometer
             sensorManager.registerListener(
                 listener,
-                sensor,
+                s,
                 //getSensorMode(freq)
                 (1000/freq)*1000,
                 (1000/freq)*1000*batchSize

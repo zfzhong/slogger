@@ -13,6 +13,11 @@ data class ConfigParams(
     var endTimestamp: Int = 0,
     var accelFreq: Int = 0,
     var gyroFreq: Int = 0,
+    // The platform's own accelerometer-minus-gravity stream, recorded at the
+    // accelerometer's rate as a check on the fusion the analysis does offline.
+    // On by default: it is one extra file per session, and a fused estimate
+    // nobody recorded cannot be compared against afterwards.
+    var logLinearAccel: Boolean = true,
     var heartFreq: Int = 0,
     var offbodyFreq: Int = 0,
     var bleScanInterval: Int = 20, // BLE scanning duration

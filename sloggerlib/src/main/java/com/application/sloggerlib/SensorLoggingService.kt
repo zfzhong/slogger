@@ -23,6 +23,7 @@ class SensorLoggingService: Service() {
     private lateinit var configParams: ConfigParams
     private lateinit var sensorAccel: SensorAccelerometer
     private lateinit var sensorGyro: SensorGyroscope
+    private lateinit var sensorLinear: SensorLinearAccel
     private lateinit var sensorHeart: SensorHeart
     private lateinit var sensorOffbody: SensorOffbody
     private lateinit var bleScanner: BLEScanner
@@ -103,6 +104,10 @@ class SensorLoggingService: Service() {
         createExpId()
 
         if (configParams.accelFreq > 0) { startAccel() }
+        // Tied to the accelerometer rather than given its own rate: it is the
+        // same signal with gravity taken out, so comparing them only means
+        // anything if they are sampled together.
+        if (configParams.accelFreq > 0 && configParams.logLinearAccel) { startLinear() }
         if (configParams.gyroFreq > 0) { startGyro() }
         if (configParams.heartFreq > 0) { startHeart() }
         if (configParams.offbodyFreq > 0) { startOffbody() }
@@ -113,6 +118,7 @@ class SensorLoggingService: Service() {
     private fun stopSensors() {
         // Stop all sensors and signal to update App state.
         stopAccel()
+        stopLinear()
         stopGyro()
         stopHeart()
         stopOffbody()
@@ -151,6 +157,28 @@ class SensorLoggingService: Service() {
     private fun stopAccel() {
         if (this::sensorAccel.isInitialized) {
             sensorAccel.reset()
+        }
+    }
+
+    private fun startLinear() {
+        sensorLinear = SensorLinearAccel(
+            this.applicationContext,
+            sensorManager,
+            Sensor.TYPE_LINEAR_ACCELERATION,
+            configParams.deviceName,
+            configParams.protocol,
+            expId,
+            configParams.accelFreq,
+            maxRecordCount,
+            configParams.batchSize,
+            configParams.isWearable
+        )
+        sensorLinear.start()
+    }
+
+    private fun stopLinear() {
+        if (this::sensorLinear.isInitialized) {
+            sensorLinear.reset()
         }
     }
 
@@ -228,6 +256,10 @@ class SensorLoggingService: Service() {
             configParams.bleMode,
             configParams.protocol,
             expId,
+            configParams.bleScanPower,
+            configParams.bleAdMode,
+            configParams.bleAdPower,
+            configParams.bleFilterDeviceNames,
             configParams.bleRestInterval,
             maxRecordCount,
             200
