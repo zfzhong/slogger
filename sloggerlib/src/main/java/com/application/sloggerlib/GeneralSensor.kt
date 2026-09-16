@@ -72,7 +72,12 @@ open class GeneralSensor (
         } else if (type == Sensor.TYPE_ACCELEROMETER) {
             return "Accel"
         } else if (type == Sensor.TYPE_LINEAR_ACCELERATION) {
-            return "Linear"
+            // "LAccel", not "LinAccel" or "Linear_Accel": the underscore is the
+            // field separator in every log filename, so a sensor name may not
+            // contain one. Readers that split on "_" see this as one field and
+            // "_laccel_" never matches "_accel_", which is what keeps the two
+            // streams apart downstream.
+            return "LAccel"
         } else if (type == Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT) {
             return "Presence" // Fitbit convention
         }

@@ -7,6 +7,9 @@ import android.hardware.SensorManager
  * The platform's own gravity-free acceleration, logged beside the raw
  * accelerometer rather than instead of it.
  *
+ * Written as <device>_<protocol>_LAccel_<rate>_<seq>_<expId>_<wallMs>.csv, so
+ * it sorts and parses exactly like the accelerometer's own files.
+ *
  * Android synthesises TYPE_LINEAR_ACCELERATION by fusing the accelerometer
  * with the gyroscope, which is the same job the analysis does offline. Keeping
  * both lets one check the other: if they disagree, one of the two is wrong and
