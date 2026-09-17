@@ -1,6 +1,8 @@
 package com.application.tablet
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import java.util.Calendar
 import com.application.sloggerlib.ConfigParams
 import com.application.sloggerlib.freq2mode
 import com.application.sloggerlib.mode2freq
@@ -82,6 +85,13 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
         val edate = configParams.getEndDate()
         val etime = configParams.getEndTime()
          endTime.text = "$edate $etime"
+
+        // Typing "2026-09-17 13:00:00" by hand on a tablet is slow and one
+        // fat-fingered separator away from a crash in the save parser, which
+        // splits on "-" and ":" and calls toInt on the pieces. The pickers can
+        // only produce a well-formed value.
+        pickDateTimeOnTap(startTime)
+        pickDateTimeOnTap(endTime)
 
         val bleFilterDeviceNames = findViewById<TextView>(R.id.id_ble_scan_filter_device_names)
         bleFilterDeviceNames.text = configParams.bleFilterDeviceNames
@@ -270,6 +280,40 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
         return v.trimEnd('/')
     }
 
+    /**
+     * Tap the field, choose a date, then a time. The result is written back in
+     * exactly the shape the save parser expects - "yyyy-MM-dd HH:mm:ss" - so
+     * nothing downstream changes.
+     *
+     * Seconds are not offered and are always written as 00. TimePickerDialog
+     * has no seconds, and a start time to the second is not something anyone
+     * sets by hand for a recording that runs for hours.
+     */
+    private fun pickDateTimeOnTap(field: TextView) {
+        field.setOnClickListener {
+            val now = Calendar.getInstance()
+            var y = now.get(Calendar.YEAR)
+            var mo = now.get(Calendar.MONTH) + 1
+            var d = now.get(Calendar.DAY_OF_MONTH)
+            var h = now.get(Calendar.HOUR_OF_DAY)
+            var mi = 0
+            // Start from what is already there, so opening the picker on a set
+            // field and cancelling out of it cannot quietly move the value.
+            Regex("""(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})""")
+                .find(field.text.toString())?.let { m ->
+                    val g = m.groupValues
+                    y = g[1].toInt(); mo = g[2].toInt(); d = g[3].toInt()
+                    h = g[4].toInt(); mi = g[5].toInt()
+                }
+            DatePickerDialog(this, { _, py, pm, pd ->
+                TimePickerDialog(this, { _, ph, pmin ->
+                    field.text = String.format("%04d-%02d-%02d %02d:%02d:00",
+                                               py, pm + 1, pd, ph, pmin)
+                }, h, mi, true).show()
+            }, y, mo - 1, d).show()
+        }
+    }
+
     private fun handleSaveButtonClick() {
         Log.d("debug", "Save Button Clicked")
         val deviceName = findViewById<TextView>(R.id.id_device_name).text.toString()
@@ -311,7 +355,11 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
 
         // get timestamp
         var ts = tokens[1].split(":")
-        configParams.startTimestamp = genTimestamp(ts[0].toInt(), ts[1].toInt(), ts[2].toInt())
+        // Seconds optional: the picker always writes them, but a config saved
+        // by an older build - or edited by hand - may not have them, and
+        // ts[2] on a two-part value throws.
+        configParams.startTimestamp = genTimestamp(
+            ts[0].toInt(), ts[1].toInt(), ts.getOrNull(2)?.toIntOrNull() ?: 0)
 
 
         tokens = endTime.split(Regex("\\s+"))
@@ -322,7 +370,8 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
 
         // get timestamp
         ts = tokens[1].split(":")
-        configParams.endTimestamp = genTimestamp(ts[0].toInt(), ts[1].toInt(), ts[2].toInt())
+        configParams.endTimestamp = genTimestamp(
+            ts[0].toInt(), ts[1].toInt(), ts.getOrNull(2)?.toIntOrNull() ?: 0)
 
         saveConfigFile()
         finish()

@@ -37,13 +37,23 @@
             android:id="@+id/id_start_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/start_time" />
+            android:hint="@string/start_time" 
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"
+            android:longClickable="false"
+            />
 
         <EditText
             android:id="@+id/id_end_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/end_time" />
+            android:hint="@string/end_time" 
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"
+            android:longClickable="false"
+            />
 
         <TextView
             android:layout_width="wrap_content"
