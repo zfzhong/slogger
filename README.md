@@ -15,8 +15,12 @@ Carolina and Iowa State University.
 
 ---
 
+**Documentation:** [The Slogger Manual](https://github.com/ACOI-UofSC/Slog_HR/blob/main/docs/slogger-manual.pdf) — the user interface,
+configuration, state transitions, log file naming and file transfer.
+
 ## Contents
 
+- [Documentation](#documentation)
 - [What it records](#what-it-records)
 - [Modules](#modules)
 - [Requirements](#requirements)
@@ -65,6 +69,17 @@ The watch and tablet apps are thin user interfaces over `sloggerlib`, so both
 write identical file formats and speak to the same server. The tablet build
 records motion and Bluetooth but not heart rate or off-body, which are watch
 sensors.
+
+---
+
+## Documentation
+
+[The Slogger Manual](https://github.com/ACOI-UofSC/Slog_HR/blob/main/docs/slogger-manual.pdf) (PDF, 9 pages) covers the main panel and configuration
+screens, the states the app moves through and which operations each permits, the
+naming convention for log files, and file-server configuration for transfer.
+
+The manual is held in the deployment repository at
+[ACOI-UofSC/Slog_HR](https://github.com/ACOI-UofSC/Slog_HR).
 
 ---
 
