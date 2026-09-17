@@ -71,7 +71,19 @@ sensors.
 ## Publications
 
 Slogger has been used to collect or extract the data analysed in the following
-peer-reviewed studies. Each names the application in its methods.
+peer-reviewed studies, listed oldest first. Studies collecting on the Fitbit
+Sense used the Fitbit-platform version ([zfzhong/Slog](https://github.com/zfzhong/Slog));
+studies collecting on Wear OS watches used the version in this repository.
+
+**Weaver RG, Chandrashekhar MVS, Armstrong B, White JW III, Finnegan O, Cepni AB,
+Burkart S, Beets M, Adams EL, de Zambotti M, Welk GJ, Nelakuditi S, Brown D III,
+Pate R, Wang Y, Ghosal R, Zhong Z, Yang H.** Jerks are useful: extracting pulse
+rate from wrist-placed accelerometry jerk during sleep in children. *SLEEP*
+2025;48(2):zsae099. Published online 3 May 2024. doi:10.1093/sleep/zsae099
+
+Accelerometry from the Fitbit Sense was collected with the Fitbit-platform
+version of this application. The paper describes the devices used but does not
+name the collection application.
 
 **Finnegan OL, White JW III, Armstrong B, Adams EL, Burkart S, Beets MW,
 Nelakuditi S, Zhong Z, Yang H, Kiely KP, Ghosal R, Fairclough SJ, Welk GJ,
@@ -94,8 +106,9 @@ Science* 2026.
 > Accelerometer, Gyroscope, and Heart Rate Sensor locally with configurable
 > frequencies."
 
-Data for this study were collected under the Free-Living Study for Health
-(FLASH) protocol at Iowa State University.
+Data for this study were collected on the Google Pixel Watch under the
+Free-Living Study for Health (FLASH) protocol at Iowa State University — the
+Wear OS version in this repository.
 
 **Weaver RG, White JW, Finnegan O, Yang H, Zhong Z, Kiely K, Jones C, Tong Y,
 Nelakuditi S, Ghosal R, Brown DE, Pate R, Welk GJ, de Zambotti M, Wang Y,
