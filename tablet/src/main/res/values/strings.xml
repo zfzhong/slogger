@@ -4,6 +4,7 @@
     <string name="test_text">"This is a test"</string>
     <string name="device_name">"Device Name (e.g. T05)"</string>
     <string name="protocol_name">"Protocol (e.g. Sleep)"</string>
+    <string name="server_url">"Server (e.g. https://example.org)"</string>
     <string name="accel_title">"Choose Accelerometer Frequency:"</string>
     <string name="gyro_title">"Choose Gyroscope Frequency:"</string>
     <string name="ble_title">"Choose BLE Mode:"</string>

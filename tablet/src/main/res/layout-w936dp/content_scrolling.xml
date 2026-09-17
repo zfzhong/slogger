@@ -34,6 +34,13 @@
                 android:hint="@string/protocol_name" />
 
             <EditText
+                android:id="@+id/id_server_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri"
+                android:hint="@string/server_url" />
+
+            <EditText
                 android:id="@+id/id_start_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,50 +88,59 @@
                 android:layout_height="wrap_content"
                 android:prompt="@string/ble_title"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="@string/ble_scan_power"
-                />
-            <Spinner
-                android:id="@+id/id_ble_scan_power_spinner"
+            <LinearLayout
+                android:id="@+id/id_ble_scan_config_group"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/id_ble_scan_interval"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="BLE Scan/Rest intervals: (e.g., 20/20)" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/ble_scan_power"
+                    />
+                <Spinner
+                    android:id="@+id/id_ble_scan_power_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
 
-            <EditText
-                android:id="@+id/id_ble_scan_filter_device_names"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="BLE Filter Device Names: (e.g., Pix07,Pix08)" />
+                <EditText
+                    android:id="@+id/id_ble_scan_filter_device_names"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="BLE Filter Device Names: (e.g., Pix07,Pix08)" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="@string/ble_ad_mode"
-                />
-            <Spinner
-                android:id="@+id/id_ble_ad_mode_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+            </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="@string/ble_ad_power"
-                />
-            <Spinner
-                android:id="@+id/id_ble_ad_power_spinner"
+            <LinearLayout
+                android:id="@+id/id_ble_ad_config_group"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/ble_ad_mode"
+                    />
+                <Spinner
+                    android:id="@+id/id_ble_ad_mode_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/ble_ad_power"
+                    />
+                <Spinner
+                    android:id="@+id/id_ble_ad_power_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
 
             <!-- Add more items as needed -->
             <Button
