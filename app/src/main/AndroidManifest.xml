@@ -67,6 +67,11 @@
             android:taskAffinity=".DeviceNameAffinity"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
         <activity
+            android:name=".presentation.BleFilterActivity"
+            android:exported="false"
+            android:taskAffinity=".BleFilterAffinity"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+        <activity
             android:name=".presentation.ConfigListActivity"
             android:exported="false"
             android:taskAffinity=".ConfigListAffinity"

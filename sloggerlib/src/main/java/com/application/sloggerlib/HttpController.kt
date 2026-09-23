@@ -20,8 +20,27 @@ import javax.net.ssl.TrustManager
 
 class HttpController(
     val mainInterface: SloggerMainInterface,
-    var xferLink:String
+    var xferLink:String,
+    /** Only for hosts whose certificate the system store rejects. Disables ALL
+     *  TLS verification for this client, so keep it false unless you must. */
+    private val insecureTls: Boolean = false
 ) {
+
+    /** Accepts any certificate and any hostname. Legacy path for weardatadl.com. */
+    private fun insecureClient(): OkHttpClient {
+        val trustAll = object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        }
+        val ctx = SSLContext.getInstance("TLS")
+        ctx.init(null, arrayOf<TrustManager>(trustAll), null)
+        return OkHttpClient.Builder()
+            .sslSocketFactory(ctx.socketFactory, trustAll)
+            .certificatePinner(CertificatePinner.Builder().build())
+            .hostnameVerifier { _, _ -> true }
+            .build()
+    }
     private var numOfSentFiles = 0
     private var numOfFailedFiles = 0
 
@@ -73,34 +92,7 @@ class HttpController(
         // in the AndroidManifest.xml
         //
 
-        //Log.d("sendFile:", "send file to server")
-        // Solve SSL certificate issue (we dont need to verify)
-        val customTrustManager = object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-                // Implement client certificate validation logic if needed
-            }
-
-            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-                // Implement custom server certificate validation logic here
-                // You can check if the server's certificate is in the chain or implement other checks
-                // For example, you can validate the certificate against the TrustAnchor you created
-            }
-
-            override fun getAcceptedIssuers(): Array<X509Certificate> {
-                //return arrayOf(serverCert)
-                return arrayOf() // An empty array signifies that no certificates are accepted
-            }
-        }
-
-        // Create a custom SSLContext with your custom TrustManager
-        val sslContext = SSLContext.getInstance("TLS")
-        sslContext.init(null, arrayOf<TrustManager>(customTrustManager), null)
-
-        val client = OkHttpClient.Builder()
-            .sslSocketFactory(sslContext.socketFactory, customTrustManager)
-            .certificatePinner(CertificatePinner.Builder().build()) // Disable certificate pinning (optional but not recommended)
-            .hostnameVerifier { hostname, session -> true } // Disabling hostname verification (not recommended)
-            .build()
+        val client = if (insecureTls) insecureClient() else OkHttpClient.Builder().build()
 
         //var url = "https://reqres.in/api/users?page=2"
         var url = xferLink
@@ -128,11 +120,12 @@ class HttpController(
         try {
             client.newCall(request).enqueue(object: Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    Log.d(tag, "HTTPS request failed, files: $numOfFailedFiles")
-                    //e.printStackTrace()
                     numOfFailedFiles += 1
-                    //activityReference.get()?.uploadNext(numOfSentFiles+numOfFailedFiles)
-
+                    Log.d(tag, "FAILED ${file.name}: $e (failed so far: $numOfFailedFiles)")
+                    // Keep going. Stopping here left one bad file blocking every
+                    // remaining file in the queue, with no way to retry short of
+                    // deleting it off the watch.
+                    mainInterface.uploadNext(numOfSentFiles + numOfFailedFiles)
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -148,8 +141,9 @@ class HttpController(
                         //println(responseBody.toString())
                         // Handle the successful response here
                     } else {
-                        Log.d(tag, "UPLOAD FILE ERROR: " +response.message)
-                        // Handle errors here
+                        numOfFailedFiles += 1
+                        Log.d(tag, "REJECTED ${file.name}: ${response.code} ${response.message}")
+                        mainInterface.uploadNext(numOfSentFiles + numOfFailedFiles)
                     }
                 }
             })

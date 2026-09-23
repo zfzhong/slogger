@@ -17,23 +17,9 @@ class LoggingScheduler(
     val endDate: Int,
     val endTimestamp: Int) {
 
-    private val startTime = LocalDateTime.of(
-        getYear(startDate),
-        getMonth(startDate),
-        getDay(startDate),
-        getHour(startTimestamp),
-        getMinute(startTimestamp),
-        getSecond(startTimestamp)
-    )
+    private val startTime = safeDateTime(startDate, startTimestamp)
 
-    private val endTime = LocalDateTime.of(
-        getYear(endDate),
-        getMonth(endDate),
-        getDay(endDate),
-        getHour(endTimestamp),
-        getMinute(endTimestamp),
-        getSecond(endTimestamp)
-    )
+    private val endTime = safeDateTime(endDate, endTimestamp)
 
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntentStart: PendingIntent

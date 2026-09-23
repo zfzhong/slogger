@@ -18,19 +18,33 @@ data class ConfigParams(
     // On by default: it is one extra file per session, and a fused estimate
     // nobody recorded cannot be compared against afterwards.
     var logLinearAccel: Boolean = true,
+    // The magnetic field. A rate rather than a flag, chosen on the watch like
+    // the accelerometer's and the gyroscope's, because the field is worth
+    // different rates for different questions: Game (50 Hz) to compare it with
+    // the other streams sample for sample, Normal (5 Hz) when it is only being
+    // watched for a tablet coming near.
+    //
+    // It is the only sensor that sees heading - gravity fixes two angles of an
+    // orientation and says nothing about the third - and the only one that
+    // feels how close a tablet is, since a tablet carries magnets of its own.
+    var magFreq: Int = 50,
     var heartFreq: Int = 0,
     var offbodyFreq: Int = 0,
     var bleScanInterval: Int = 20, // BLE scanning duration
     var bleRestInterval: Int = 20, // BLE scan resting interval
     var bleMode: BLEMode = BLEMode.OFF,
-    var bleScanPower: BLEScanPower = BLEScanPower.LowPower,
-    var bleAdMode: BLEAdMode = BLEAdMode.LowPower,
-    var bleAdPower: BLEAdPower = BLEAdPower.UltraLow,
+    var bleScanPower: BLEScanPower = BLEScanPower.LowLatency,
+    var bleAdMode: BLEAdMode = BLEAdMode.LowLatency,
+    var bleAdPower: BLEAdPower = BLEAdPower.High,
     var bleFilterDeviceNames: String = "",
     var batchSize: Int = 1,
-    var baseURL: String ="https://weardatadl.com:8443",
-    //var baseURL: String ="https://192.168.1.214:8000",
-    var suffixURL: String = "/android_xfer/",
+    var baseURL: String ="https://withings.geosketch.art",
+    //var baseURL: String ="https://weardatadl.com:8443",
+    var suffixURL: String = "/cmii/upload/",
+    // weardatadl.com serves a certificate the system store does not accept, so
+    // that host needs the old skip-verification path. Leave this false for any
+    // host with a real certificate - it disables ALL TLS checking.
+    var allowInsecureTls: Boolean = false,
     var lastUploadedCount:Int = 0,
     var isWearable:Boolean = true
 ) {

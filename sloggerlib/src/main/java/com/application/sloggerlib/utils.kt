@@ -193,6 +193,21 @@ fun getSecond(timestamp: Int): Int {
     return timestamp % 60
 }
 
+/**
+ * Build a LocalDateTime from the config's yyyymmdd + seconds-of-day pair without
+ * throwing. A config holding an impossible date (20260431 - April has 30 days)
+ * used to take the whole app down with DateTimeException the moment Start was
+ * pressed; every field is clamped into range instead.
+ */
+fun safeDateTime(yyyymmdd: Int, timestamp: Int): java.time.LocalDateTime {
+    val year  = getYear(yyyymmdd).coerceIn(1970, 9999)
+    val month = getMonth(yyyymmdd).coerceIn(1, 12)
+    val day   = getDay(yyyymmdd).coerceIn(1, java.time.YearMonth.of(year, month).lengthOfMonth())
+    val secs  = timestamp.coerceIn(0, 86399)
+    return java.time.LocalDateTime.of(
+        year, month, day, getHour(secs), getMinute(secs), getSecond(secs))
+}
+
 fun getBLEScanDurationParam(interval:Int): Int {
     var duration: Double = 0.0
 
@@ -217,6 +232,47 @@ fun str2blemode(s: String): BLEMode {
     }
 
     return BLEMode.OFF
+}
+
+fun str2blescanpower(s: String): BLEScanPower {
+    return when (s) {
+        "LowPower" -> BLEScanPower.LowPower
+        "Balanced" -> BLEScanPower.Balanced
+        "LowLatency" -> BLEScanPower.LowLatency
+        "Opportunistic" -> BLEScanPower.Opportunistic
+        else -> BLEScanPower.LowPower
+    }
+}
+
+fun blescanpower2str(p: BLEScanPower): String {
+    return p.toString()
+}
+
+fun str2bleadmode(s: String): BLEAdMode {
+    return when (s) {
+        "LowPower" -> BLEAdMode.LowPower
+        "Balanced" -> BLEAdMode.Balanced
+        "LowLatency" -> BLEAdMode.LowLatency
+        else -> BLEAdMode.LowPower
+    }
+}
+
+fun bleadmode2str(m: BLEAdMode): String {
+    return m.toString()
+}
+
+fun str2bleadpower(s: String): BLEAdPower {
+    return when (s) {
+        "UltraLow" -> BLEAdPower.UltraLow
+        "Low" -> BLEAdPower.Low
+        "Medium" -> BLEAdPower.Medium
+        "High" -> BLEAdPower.High
+        else -> BLEAdPower.UltraLow
+    }
+}
+
+fun bleadpower2str(p: BLEAdPower): String {
+    return p.toString()
 }
 
 

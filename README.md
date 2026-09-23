@@ -32,6 +32,7 @@ configuration, state transitions, log file naming and file transfer.
 - [Scheduled recording](#scheduled-recording)
 - [Permissions](#permissions)
 - [Data handling](#data-handling)
+- [Version history](#version-history)
 - [Support](#support)
 
 ---
@@ -43,6 +44,7 @@ configuration, state transitions, log file naming and file transfer.
 | Accelerometer | `TYPE_ACCELEROMETER` | raw, including gravity |
 | Linear acceleration | `TYPE_LINEAR_ACCELERATION` | the platform's own gravity-removed stream, recorded at the accelerometer rate; on by default |
 | Gyroscope | `TYPE_GYROSCOPE` | |
+| Magnetometer | `TYPE_MAGNETIC_FIELD` | microtesla in the device frame; the only stream that sees heading, and the one that feels a nearby magnet |
 | Heart rate | `TYPE_HEART_RATE` | watch only |
 | Off-body / presence | `TYPE_LOW_LATENCY_OFFBODY_DETECT` | watch only; tells you when the device was not being worn |
 | Bluetooth proximity | BLE scan or advertise | for device-to-device proximity between participants or rooms |
@@ -51,6 +53,15 @@ Linear acceleration is recorded alongside the raw accelerometer on purpose: it
 lets the fusion performed offline during analysis be checked against the
 platform's own estimate. A fused estimate nobody recorded cannot be compared
 afterwards. Turn it off if the extra file per session is not wanted.
+
+The magnetometer answers a question the others cannot. Gravity fixes two of the
+three angles of an orientation and says nothing about the third, so an
+accelerometer cannot tell north from east; the field supplies that last degree
+of freedom, and it is the only way two devices' orientations can be compared in
+one Earth frame. It is also sensitive to magnets nearby - tablets carry them for
+docks and speakers, and a charging cradle will read many times the Earth's
+field, so a session that began on the charger has a stretch of magnetometer
+worth discarding.
 
 Composite sensors are synthesised by the platform and a given watch may simply
 not offer one. Slogger treats a missing sensor as absent rather than fatal.
@@ -181,7 +192,7 @@ app's private storage.
 | Device name | Identifier for this unit, e.g. `PIX014`. Becomes the first field of every filename. |
 | Protocol | Label for the recording condition, e.g. `Sleep`, `PA`. Second field of every filename. |
 | Start / end date and time | When recording begins and ends (see [Scheduled recording](#scheduled-recording)). |
-| Accelerometer / gyroscope / heart / off-body rate | Per-sensor sampling rate, or off. |
+| Accelerometer / gyroscope / magnetometer / heart / off-body rate | Per-sensor sampling rate, or off. |
 | Log linear acceleration | Whether to record the gravity-removed stream. Default on. |
 | BLE mode | `SCAN`, `ADVERTISE` or `OFF`. |
 | BLE scan / rest interval | Seconds scanning, then seconds idle. Default 20 / 20. |
@@ -224,7 +235,7 @@ PIX014_Sleep_Heart_50_1_1698278400157_1698278400254.csv
 |---|---|
 | `device` | device name from the configuration |
 | `protocol` | protocol label from the configuration |
-| `sensor` | `Accel`, `Linear`, `Gyro`, `Heart`, `Presence` or `BLE` |
+| `sensor` | `Accel`, `LAccel`, `Gyro`, `Mag`, `Heart`, `Presence` or `BLE` |
 | `rate` | configured rate |
 | `seq` | file sequence number within the session, from 1 |
 | `sessionId` | wall-clock milliseconds when the recording session started — shared by every file of a session |
@@ -239,7 +250,7 @@ No header row is written.
 
 | Sensor | Columns |
 |---|---|
-| `Accel`, `Linear`, `Gyro` | `timestamp, x, y, z` |
+| `Accel`, `LAccel`, `Gyro`, `Mag` | `timestamp, x, y, z` |
 | `Heart` | `timestamp, bpm` |
 | `Presence` | `timestamp, value` |
 | `BLE` | `timestamp_ms, index, device_name, mac_address, rssi` |
@@ -299,6 +310,40 @@ server is configured, uploads it there. It applies no encryption of its own, at
 rest or beyond the transport. Devices, the receiving server, and the retention
 and access arrangements around both are the responsibility of the study, and
 should be described in its ethics or IRB submission before collection begins.
+
+---
+
+## Version history
+
+Both apps carry the same version. A recording should be able to name the
+version that produced it, so the number moves whenever what lands in the data
+changes.
+
+### 1.7.0
+
+- **Magnetometer.** `TYPE_MAGNETIC_FIELD` is recorded beside the accelerometer
+  and gyroscope, on the watch and on the tablet, at a rate chosen on the device
+  like the others (`Mag` in the configuration list; Game, 50 Hz, by default).
+  Files are named `<device>_<protocol>_Mag_<rate>_...csv` with the same columns
+  as the other motion streams.
+- **BLE defaults changed** to low-latency scanning and advertising at high
+  power, which is what proximity work between two devices in a room needs.
+- **Server moved** to a host with a real certificate, and TLS verification is
+  no longer skipped by default. `allowInsecureTls` remains for the one host
+  whose certificate the system store does not accept, and it disables *all*
+  checking - leave it off.
+- **Start and end times are picked** rather than typed, on both apps.
+- **The tablet's Delete button counts what it would delete** - "Delete Files
+  (11)" - and says how many went.
+- **Configuration rows are addressed by name, not by position.** The watch's
+  config list wrote each answer back by row index, so inserting a row above
+  would have made every row below it display someone else's value.
+
+### 1.6.4 and earlier
+
+Accelerometer, linear acceleration, gyroscope, heart rate and off-body, with
+BLE scanning or advertising, scheduled recording and upload. See the commit
+history.
 
 ---
 

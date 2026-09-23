@@ -98,6 +98,7 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
 
         val accelSpinner: Spinner = findViewById(R.id.id_accel_spinner)
         val gyroSpinner: Spinner = findViewById(R.id.id_gyro_spinner)
+        val magSpinner: Spinner = findViewById(R.id.id_mag_spinner)
         val bleSpinner: Spinner = findViewById(R.id.id_ble_spinner)
 
 
@@ -140,6 +141,21 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
             gyroSpinner.setSelection(pos)
         }
 
+
+        // The magnetic field, offered at the same rates as the other two. It
+        // is what sees heading, which gravity cannot, and what feels a tablet's
+        // own magnets from a few centimetres away.
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.mag_mode,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            magSpinner.adapter = adapter
+            magSpinner.onItemSelectedListener = this
+            val magMode = freq2mode(configParams.magFreq)
+            magSpinner.setSelection(adapter.getPosition(magMode))
+        }
 
         ArrayAdapter.createFromResource(
             this,
@@ -225,6 +241,23 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
         deleteButton.setOnClickListener {
             handleDeleteButtonClick()
         }
+        refreshDeleteLabel()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // The count is read from the directory rather than remembered: logging
+        // happens elsewhere and adds files while this screen is not looking.
+        refreshDeleteLabel()
+    }
+
+    /** How many files the Delete button would remove, which is everything the
+     *  app has written except the configuration itself. */
+    private fun loggedFileCount(): Int =
+        filesDir.listFiles()?.count { it.name != "config.txt" } ?: 0
+
+    private fun refreshDeleteLabel() {
+        findViewById<Button>(R.id.id_delete)?.text = "Delete Files (${loggedFileCount()})"
     }
 
     private fun updateBleConfigVisibility(bleModeStr: String) {
@@ -249,16 +282,20 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
 
     private fun handleDeleteButtonClick() {
         Log.d("debug", "Delete button clicked")
+        var deleted = 0
         val localFiles = filesDir.listFiles()
-        for (file in localFiles!!) {
-            if (file.name != "config.txt") {
-                file.delete()
+        for (file in localFiles.orEmpty()) {
+            if (file.name != "config.txt" && file.delete()) {
+                deleted++
             }
         }
         configParams.lastUploadedCount = 0
         saveConfigFile()
 
-        Toast.makeText(this@ConfigScrollingActivity, "Files deleted.", Toast.LENGTH_SHORT).show()
+        val gone = deleted
+        refreshDeleteLabel()
+        Toast.makeText(this@ConfigScrollingActivity, "$gone files deleted.",
+            Toast.LENGTH_SHORT).show()
         //finish()
     }
 
@@ -322,6 +359,7 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
 
         val accelFreq = findViewById<Spinner>(R.id.id_accel_spinner).selectedItem.toString()
         val gyroFreq = findViewById<Spinner>(R.id.id_gyro_spinner).selectedItem.toString()
+        val magFreq = findViewById<Spinner>(R.id.id_mag_spinner).selectedItem.toString()
         val ble = findViewById<Spinner>(R.id.id_ble_spinner).selectedItem.toString()
 
         val startTime = findViewById<TextView>(R.id.id_start_time).text.toString()
@@ -337,6 +375,7 @@ class ConfigScrollingActivity : AppCompatActivity(), AdapterView.OnItemSelectedL
 
         configParams.accelFreq = mode2freq(accelFreq, "Accel")
         configParams.gyroFreq = mode2freq(gyroFreq, "Gyro")
+        configParams.magFreq = mode2freq(magFreq, "Mag")
         configParams.bleMode = str2blemode(ble)
         configParams.bleScanPower = str2blescanpower(bleScanPower)
         configParams.bleAdMode = str2bleadmode(bleAdMode)

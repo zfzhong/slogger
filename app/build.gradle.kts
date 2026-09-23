@@ -13,8 +13,8 @@ android {
         applicationId = "com.application.slogger"
         minSdk = 31
         targetSdk = 33
-        versionCode = 3
-        versionName = "1.6.4"
+        versionCode = 4
+        versionName = "1.7.0"
         vectorDrawables {
             useSupportLibrary = true
         }

@@ -37,6 +37,10 @@ class BLEScanner (
     private val bleMode: BLEMode,
     private val protocol: String,
     private val expId: String,
+    private val bleScanPower: BLEScanPower,
+    private val bleAdMode: BLEAdMode,
+    private val bleAdPower: BLEAdPower,
+    private val bleFilterDeviceNames: String, // comma-separated, e.g. "Pix07,Pix08"; empty = no filter
     private val interval: Int, // default 10
     private val maxRecordInFile: Int, //6000
     private val write2fileMaxCount: Int //1500
@@ -61,11 +65,17 @@ class BLEScanner (
 
     private lateinit var requestBluetoothDiscoverableLauncher: ActivityResultLauncher<Intent>
 
-
-    private val scanIntervalMillis: Long = (interval * 1000).toLong() // Interval between scans
-    private val scanDurationMillis: Long = 10000 // Duration always 2000 ms
+    // Android throttles BLE scans after ~5 minutes of continuous scanning.
+    // Restarting every 4 minutes resets the throttle timer and maintains full scan rate.
+    private val scanRestartIntervalMillis: Long = 4 * 60 * 1000L
     private val handler = Handler(Looper.getMainLooper())
 
+    // Parsed, trimmed list of device names to keep. Empty list = no filtering (keep all named devices).
+    private val filterDeviceNameList: List<String> by lazy {
+        bleFilterDeviceNames.split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+    }
 
     fun start() {
         if (bleMode == BLEMode.ADVERTISE)
@@ -89,45 +99,47 @@ class BLEScanner (
     private fun startScan() {
         Log.d("Debug", "start BLE scan ...")
         val scanSettings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
-            //.setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+            .setScanMode(toAndroidScanMode(bleScanPower))
             .build()
 
-        //val scanFilters: MutableList<ScanFilter> = ArrayList()
-
-        // Optionally, you can also filter by device name
-//        scanFilters.add(
-//            ScanFilter.Builder()
-//                .setDeviceName("Pix07")
-//                .build()
-//        )
-//
-//        bleScanner.startScan(scanFilters, scanSettings, scanCallback)
-        bleScanner.startScan(null, scanSettings, scanCallback)
+        val scanFilters = buildScanFilters()
+        bleScanner.startScan(scanFilters, scanSettings, scanCallback)
     }
 
-    // Start periodic scanning
-    private fun startPeriodicScan() {
-        Log.d("Debug", "start BLE periodic scan -> ")
-
-        handler.post(scanRunnable)
-        isRunning = true
-    }
-
-    // Stop periodic scanning
-    private fun stopPeriodicScan() {
-        Log.d("Debug", "Cancel BLE periodic scan")
-        handler.removeCallbacks(scanRunnable)
-        stopScan()
-    }
-
-    // Runnable to handle periodic scanning
-    private val scanRunnable = object : Runnable {
-        override fun run() {
-            startScan()
-            handler.postDelayed({ stopScan() }, scanDurationMillis) // Stop scan after scanDurationMillis
-            handler.postDelayed(this, scanIntervalMillis) // Schedule next scan
+    private fun buildScanFilters(): List<ScanFilter>? {
+        if (filterDeviceNameList.isEmpty()) {
+            return null
         }
+
+        return filterDeviceNameList.map { deviceName ->
+            ScanFilter.Builder()
+                .setDeviceName(deviceName)
+                .build()
+        }
+    }
+
+    // Restarts the scan every 4 minutes to prevent Android OS throttling (kicks in after ~5 min).
+    private val scanRestartRunnable = object : Runnable {
+        @SuppressLint("MissingPermission")
+        override fun run() {
+            Log.d("Debug", "BLE scan restart (anti-throttle)")
+            bleScanner.stopScan(scanCallback)
+            startScan()
+            handler.postDelayed(this, scanRestartIntervalMillis)
+        }
+    }
+
+    private fun startPeriodicScan() {
+        Log.d("Debug", "start BLE scan -> ")
+        startScan()
+        isRunning = true
+        handler.postDelayed(scanRestartRunnable, scanRestartIntervalMillis)
+    }
+
+    private fun stopPeriodicScan() {
+        Log.d("Debug", "stop BLE scan")
+        handler.removeCallbacks(scanRestartRunnable)
+        stopScan()
     }
 
 
@@ -180,8 +192,8 @@ class BLEScanner (
                 .build()*/
 
             val settings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_ULTRA_LOW)
+                .setAdvertiseMode(toAndroidAdvertiseMode(bleAdMode))
+                .setTxPowerLevel(toAndroidAdvertiseTxPower(bleAdPower))
                 .setConnectable(false) // Allow connections if true, otherwise not connectable
                 .build()
 
@@ -231,11 +243,8 @@ class BLEScanner (
                 bufferedWriter = fileHandler.bufferedWriter()
             }
 
-            if (device.name != null) {
-                // Only log the BLE device when it has a device name.
-                write2File(msg)
-                currRecordCount += 1
-            }
+            write2File(msg)
+            currRecordCount += 1
 
             if (currRecordCount % write2fileMaxCount == 0) {
                 bufferedWriter?.flush()
@@ -280,6 +289,32 @@ class BLEScanner (
         } catch (e: IOException) {
             // Handle the exception, e.g., log the error or display a message
             Log.d("Debug","flushBuffer() error: ${e.message}")
+        }
+    }
+
+    private fun toAndroidScanMode(power: BLEScanPower): Int {
+        return when (power) {
+            BLEScanPower.LowPower -> ScanSettings.SCAN_MODE_LOW_POWER
+            BLEScanPower.Balanced -> ScanSettings.SCAN_MODE_BALANCED
+            BLEScanPower.LowLatency -> ScanSettings.SCAN_MODE_LOW_LATENCY
+            BLEScanPower.Opportunistic -> ScanSettings.SCAN_MODE_OPPORTUNISTIC
+        }
+    }
+
+    private fun toAndroidAdvertiseMode(mode: BLEAdMode): Int {
+        return when (mode) {
+            BLEAdMode.LowPower -> AdvertiseSettings.ADVERTISE_MODE_LOW_POWER
+            BLEAdMode.Balanced -> AdvertiseSettings.ADVERTISE_MODE_BALANCED
+            BLEAdMode.LowLatency -> AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY
+        }
+    }
+
+    private fun toAndroidAdvertiseTxPower(power: BLEAdPower): Int {
+        return when (power) {
+            BLEAdPower.UltraLow -> AdvertiseSettings.ADVERTISE_TX_POWER_ULTRA_LOW
+            BLEAdPower.Low -> AdvertiseSettings.ADVERTISE_TX_POWER_LOW
+            BLEAdPower.Medium -> AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM
+            BLEAdPower.High -> AdvertiseSettings.ADVERTISE_TX_POWER_HIGH
         }
     }
 

@@ -24,6 +24,8 @@ import com.application.sloggerlib.getSecond
 import com.application.sloggerlib.getYear
 import com.application.slogger.R
 import com.application.sloggerlib.str2blemode
+import com.application.sloggerlib.str2blescanpower
+import com.application.sloggerlib.blescanpower2str
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
@@ -128,33 +130,48 @@ class ConfigListActivity : AppCompatActivity() {
                  */
                 //Log.d("Debug", "$tag, $freq")
 
+                // Rows used to be addressed by position - configList[4] for the
+                // accelerometer, and so on - which meant that inserting a row
+                // anywhere above wrote every answer below it into the wrong
+                // line. The list knows its own tags, so ask it where the row is.
+                fun show(rowTag: String, text: String) {
+                    val i = configList.indexOfFirst { it.tag == rowTag }
+                    if (i >= 0) {
+                        configList[i].value = text
+                        configAdapter.notifyItemChanged(i)
+                    }
+                }
+
                 when (tag) {
                     "AccelFreq" -> {
                         configParams.accelFreq = freq
-                        configList[4].value = freq2mode(freq)
-                        configAdapter.notifyItemChanged(4)
+                        show(tag, freq2mode(freq))
                     }
                     "GyroFreq" -> {
                         configParams.gyroFreq = freq
-                        configList[5].value = freq2mode(freq)
-                        configAdapter.notifyItemChanged(5)
+                        show(tag, freq2mode(freq))
+                    }
+                    "MagFreq" -> {
+                        configParams.magFreq = freq
+                        show(tag, freq2mode(freq))
                     }
                     "HeartFreq" -> {
                         configParams.heartFreq = freq
-                        configList[6].value = freq2mode(freq)
-                        configAdapter.notifyItemChanged(6)
+                        show(tag, freq2mode(freq))
                     }
                     "OffBodyFreq" -> {
                         configParams.offbodyFreq = freq
-                        configList[7].value = freq2mode(freq)
-                        configAdapter.notifyItemChanged(7)
+                        show(tag, freq2mode(freq))
                     }
                     "BLEMode" -> {
                         val bleMode = data.getStringExtra("Mode").toString()
-
                         configParams.bleMode = str2blemode(bleMode)
-                        configList[8].value = bleMode
-                        configAdapter.notifyItemChanged(8)
+                        show(tag, bleMode)
+                    }
+                    "ScanParam" -> {
+                        val scanPower = data.getStringExtra("Mode").toString()
+                        configParams.bleScanPower = str2blescanpower(scanPower)
+                        show(tag, scanPower)
                     }
                 }
 
@@ -192,8 +209,8 @@ class ConfigListActivity : AppCompatActivity() {
                 saveConfigFile("${configParams.baseURL}${configParams.suffixURL}")
 
                 if (configParams.baseURL != "") {
-                    configList[8].value = configParams.getBaseDomain()
-                    configAdapter.notifyItemChanged(8)
+                    configList[9].value = configParams.getBaseDomain()
+                    configAdapter.notifyItemChanged(9)
                     //configAdapter.notifyDataSetChanged()
                 }
             }
@@ -205,8 +222,8 @@ class ConfigListActivity : AppCompatActivity() {
                 //Log.d("Debug", "deletion finished.")
                 val files = filesDir.listFiles()
                 if (files != null) {
-                    configList[9].value = files.size.toString()
-                    configAdapter.notifyItemChanged(9)
+                    configList[10].value = files.size.toString()
+                    configAdapter.notifyItemChanged(10)
                 }
 
                 //configAdapter.notifyDataSetChanged()
@@ -224,8 +241,23 @@ class ConfigListActivity : AppCompatActivity() {
 
                 saveConfigFile("BatchSize: $batchSize")
 
-                configList[10].value = batchSize
-                configAdapter.notifyItemChanged(10)
+                configList[11].value = batchSize
+                configAdapter.notifyItemChanged(11)
+            }
+        }
+
+    private val bleFilterResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Handle the result
+                val data: Intent? = result.data
+                val filterNames = data?.getStringExtra("ScanFilter").toString()
+                configParams.bleFilterDeviceNames = filterNames
+
+                saveConfigFile("ScanFilter: $filterNames")
+
+                configList[13].value = filterNames
+                configAdapter.notifyItemChanged(13)
             }
         }
 
@@ -414,6 +446,10 @@ class ConfigListActivity : AppCompatActivity() {
         val gyroFreq = ConfigItem("GyroFreq", "Gyro", freq2mode(freq))
         configList.add(gyroFreq)
 
+        freq = configParams.magFreq
+        val magFreq = ConfigItem("MagFreq", "Mag", freq2mode(freq))
+        configList.add(magFreq)
+
         freq = configParams.heartFreq
         val heartFreq = ConfigItem("HeartFreq", "Heart", freq2mode(freq))
         configList.add(heartFreq)
@@ -442,6 +478,12 @@ class ConfigListActivity : AppCompatActivity() {
         val batchSize = configParams.batchSize
         val batchInfo = ConfigItem("BatchSize", "BatchSize", batchSize.toString())
         configList.add(batchInfo)
+
+        val scanParamItem = ConfigItem("ScanParam", "ScanParam", blescanpower2str(configParams.bleScanPower))
+        configList.add(scanParamItem)
+
+        val scanFilterItem = ConfigItem("ScanFilter", "ScanFilter", configParams.bleFilterDeviceNames)
+        configList.add(scanFilterItem)
 
         configAdapter = ConfigAdapter(configList)
 
@@ -476,6 +518,11 @@ class ConfigListActivity : AppCompatActivity() {
                 intent.putExtra("Tag", it.tag)
                 intent.putExtra("Freq", configParams.gyroFreq)
                 sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "MagFreq") {
+                val intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Freq", configParams.magFreq)
+                sensorFreqResultLauncher.launch(intent)
             } else if (it.tag == "HeartFreq") {
                 val intent = Intent(this, SensorFreqActivity::class.java)
                 intent.putExtra("Tag", it.tag)
@@ -506,6 +553,15 @@ class ConfigListActivity : AppCompatActivity() {
                 intent.putExtra("Tag", it.tag)
                 intent.putExtra("BatchSize", configParams.batchSize)
                 batchSizeResultLauncher.launch(intent)
+            } else if (it.tag == "ScanParam") {
+                val intent = Intent(this, SensorFreqActivity::class.java)
+                intent.putExtra("Tag", it.tag)
+                intent.putExtra("Mode", blescanpower2str(configParams.bleScanPower))
+                sensorFreqResultLauncher.launch(intent)
+            } else if (it.tag == "ScanFilter") {
+                val intent = Intent(this, BleFilterActivity::class.java)
+                intent.putExtra("ScanFilter", configParams.bleFilterDeviceNames)
+                bleFilterResultLauncher.launch(intent)
             }
         }
 

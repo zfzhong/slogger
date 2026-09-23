@@ -7,6 +7,7 @@
     <string name="server_url">"Server (e.g. https://example.org)"</string>
     <string name="accel_title">"Choose Accelerometer Frequency:"</string>
     <string name="gyro_title">"Choose Gyroscope Frequency:"</string>
+    <string name="mag_title">"Choose Magnetometer Frequency:"</string>
     <string name="ble_title">"Choose BLE Mode:"</string>
 
     <string name="start_time">"Start Time: YYYY-MM-DD hh:mm:ss"</string>
@@ -14,6 +15,7 @@
     <string name="accel_label">Accelerometer:</string>
     <string name="gyro_label">Gyroscope:</string>
 
+    <string name="mag_label">Magnetometer:</string>
     <string name="ble_label">BLE Ad/Scan:</string>
     <string name="ble_scan_power">BLE Scan Power:</string>
     <string name="ble_scan_interval">BEL Scan/Rest Interval (s):</string>
@@ -29,6 +31,14 @@
     </string-array>
 
     <string-array name="gyro_mode">
+        <item>Off</item>
+        <item>Normal</item>
+        <item>UI</item>
+        <item>Game</item>
+        <item>Fastest</item>
+    </string-array>
+
+    <string-array name="mag_mode">
         <item>Off</item>
         <item>Normal</item>
         <item>UI</item>

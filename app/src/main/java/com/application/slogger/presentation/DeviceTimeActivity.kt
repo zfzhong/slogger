@@ -82,9 +82,22 @@ class DeviceTimeActivity : AppCompatActivity() {
         day = findViewById(R.id.day)
         day.minValue = 1
         day.maxValue = 31
-
-        day.value = getDay(yyyymmdd)
+        day.value = getDay(yyyymmdd).coerceIn(1, 31)
         day.setFormatter (formatter )
+
+        // The day wheel used to sit at a fixed 1..31 for every month, so Apr 31
+        // and Feb 30 were selectable and went straight into config.txt - which
+        // then crashed the app on Start with DateTimeException. Re-derive the
+        // day range whenever the month or the year changes, and pull the current
+        // selection back inside it (Mar 31 -> Apr 30, not Apr 1).
+        fun syncDayRange() {
+            val len = java.time.YearMonth.of(2000 + year.value, month.value).lengthOfMonth()
+            if (day.value > len) day.value = len
+            day.maxValue = len
+        }
+        month.setOnValueChangedListener { _, _, _ -> syncDayRange() }
+        year.setOnValueChangedListener  { _, _, _ -> syncDayRange() }
+        syncDayRange()
 
         hour = findViewById(R.id.hour)
         hour.minValue=0

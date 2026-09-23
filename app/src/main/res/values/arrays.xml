@@ -16,6 +16,14 @@
         <item>Fastest</item>
     </string-array>
 
+    <string-array name="mag_freqs">
+        <item>Off</item>
+        <item>Normal</item>
+        <item>UI</item>
+        <item>Game</item>
+        <item>Fastest</item>
+    </string-array>
+
     <string-array name="heart_freqs">
         <item>Off</item>
         <item>Normal</item>
@@ -32,5 +40,11 @@
         <item>ADVERTISE</item>
     </string-array>
 
+    <string-array name="ble_scan_power">
+        <item>LowPower</item>
+        <item>Balanced</item>
+        <item>LowLatency</item>
+        <item>Opportunistic</item>
+    </string-array>
 
 </resources>

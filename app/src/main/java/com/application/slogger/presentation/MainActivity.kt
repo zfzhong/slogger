@@ -383,7 +383,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
 
         // Initialize httpController
         if (!this::httpController.isInitialized) {
-            httpController = HttpController(this,configParams.getServerURL())
+            httpController = HttpController(this, configParams.getServerURL(), configParams.allowInsecureTls)
         }
 
         // Everytime the upload() function is called, we reset the numOfSentFiles. So

@@ -117,7 +117,10 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
         super.onConfigurationChanged(newConfig)
         // No UI changes needed—your simple layout works as-is in both orientations
         Log.d("debug", "configuration changed")
+        debugLogger = DebugLogger(filesDir, configParams.deviceName)
+        debugLogger.logDebug("Debug","mainActivity: configuration change.")
     }
+
     private fun hasBodySensorsPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             this, Manifest.permission.BODY_SENSORS
@@ -179,14 +182,6 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
             }) {
             ActivityCompat.requestPermissions(this, requiredBLEPermissions, PERMISSIONS_REQUEST_CODE)
         }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // No UI changes needed—your simple layout works as-is in both orientations
-        debugLogger = DebugLogger(filesDir, configParams.deviceName)
-        debugLogger.logDebug("Debug","mainActivity: configuration change.")
-
     }
 
     override fun getLogger(): DebugLogger {
@@ -416,7 +411,7 @@ class MainActivity: ComponentActivity(), SloggerMainInterface {
 
         // Initialize httpController
         if (!this::httpController.isInitialized) {
-            httpController = HttpController(this,configParams.getServerURL())
+            httpController = HttpController(this, configParams.getServerURL(), configParams.allowInsecureTls)
         }
 
         Log.d("Debug", configParams.getServerURL())

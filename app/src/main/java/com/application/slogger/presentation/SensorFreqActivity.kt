@@ -33,6 +33,9 @@ class SensorFreqActivity : AppCompatActivity() {
         } else if (tag == "GyroFreq") {
             titleView.text = "Gyroscope"
             freqs = resources.getStringArray(R.array.gyro_freqs)
+        } else if (tag == "MagFreq") {
+            titleView.text = "Magnetometer"
+            freqs = resources.getStringArray(R.array.mag_freqs)
         } else if (tag == "HeartFreq") {
             titleView.text = "Heart"
             freqs = resources.getStringArray(R.array.heart_freqs)
@@ -42,14 +45,17 @@ class SensorFreqActivity : AppCompatActivity() {
         } else if (tag == "BLEMode") {
             titleView.text = "BLE"
             freqs = resources.getStringArray(R.array.ble_mode)
+        } else if (tag == "ScanParam") {
+            titleView.text = "Scan Power"
+            freqs = resources.getStringArray(R.array.ble_scan_power)
         }
 
         val arrayAdapter = ArrayAdapter(this, R.layout.dropdown_item, freqs)
         autoSensorView.setAdapter(arrayAdapter)
 
-        if (tag == "BLEMode") {
-            val bleMode =  intent.getStringExtra("Mode").toString()
-            autoSensorView.setText(bleMode, false)
+        if (tag == "BLEMode" || tag == "ScanParam") {
+            val mode =  intent.getStringExtra("Mode").toString()
+            autoSensorView.setText(mode, false)
         } else {
             autoSensorView.setText(freq2mode(freq), false)
         }
@@ -61,7 +67,7 @@ class SensorFreqActivity : AppCompatActivity() {
 
             val mode = autoSensorView.text.toString()
 
-            if (tag == "BLEMode") {
+            if (tag == "BLEMode" || tag == "ScanParam") {
                 res.putExtra("Mode", mode)
             } else {
                 res.putExtra("Freq", mode2freq(mode, tag))

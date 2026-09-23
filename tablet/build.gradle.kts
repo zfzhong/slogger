@@ -11,8 +11,8 @@ android {
         applicationId = "com.application.tablet"
         minSdk = 30
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.6.4"
+        versionCode = 6
+        versionName = "1.7.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -24,6 +24,7 @@ class SensorLoggingService: Service() {
     private lateinit var sensorAccel: SensorAccelerometer
     private lateinit var sensorGyro: SensorGyroscope
     private lateinit var sensorLinear: SensorLinearAccel
+    private lateinit var sensorMag: SensorMagnetometer
     private lateinit var sensorHeart: SensorHeart
     private lateinit var sensorOffbody: SensorOffbody
     private lateinit var bleScanner: BLEScanner
@@ -108,6 +109,7 @@ class SensorLoggingService: Service() {
         // same signal with gravity taken out, so comparing them only means
         // anything if they are sampled together.
         if (configParams.accelFreq > 0 && configParams.logLinearAccel) { startLinear() }
+        if (configParams.magFreq > 0) { startMag() }
         if (configParams.gyroFreq > 0) { startGyro() }
         if (configParams.heartFreq > 0) { startHeart() }
         if (configParams.offbodyFreq > 0) { startOffbody() }
@@ -119,6 +121,7 @@ class SensorLoggingService: Service() {
         // Stop all sensors and signal to update App state.
         stopAccel()
         stopLinear()
+        stopMag()
         stopGyro()
         stopHeart()
         stopOffbody()
@@ -179,6 +182,28 @@ class SensorLoggingService: Service() {
     private fun stopLinear() {
         if (this::sensorLinear.isInitialized) {
             sensorLinear.reset()
+        }
+    }
+
+    private fun startMag() {
+        sensorMag = SensorMagnetometer(
+            this.applicationContext,
+            sensorManager,
+            Sensor.TYPE_MAGNETIC_FIELD,
+            configParams.deviceName,
+            configParams.protocol,
+            expId,
+            configParams.magFreq,
+            maxRecordCount,
+            configParams.batchSize,
+            configParams.isWearable
+        )
+        sensorMag.start()
+    }
+
+    private fun stopMag() {
+        if (this::sensorMag.isInitialized) {
+            sensorMag.reset()
         }
     }
 
