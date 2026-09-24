@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
@@ -12,6 +13,10 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
+
+    <!-- Needed by the connectedDevice foreground-service type this app
+         overrides the library's declaration with, below. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
     <application
         android:allowBackup="true"
@@ -38,7 +43,24 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.application.sloggerlib.SensorLoggingService" />
+        <!--
+          The library declares this service with foregroundServiceType
+          "location", which is what the watch app has always used and still
+          uses. This app targets SDK 34, where location is a "while-in-use"
+          type: a foreground service of that type STARTED FROM THE BACKGROUND
+          throws SecurityException, and the scheduled start does exactly that -
+          it killed the app whenever logging began while the user was in
+          another app. connectedDevice describes what the service does here
+          (its own sensors, and BLE to devices nearby), carries no while-in-use
+          restriction and no daily limit.
+
+          Overridden HERE rather than in the library, so the watch app - which
+          targets 33, where none of this applies - keeps the manifest it was
+          tested with.
+        -->
+        <service android:name="com.application.sloggerlib.SensorLoggingService"
+            android:foregroundServiceType="connectedDevice"
+            tools:replace="android:foregroundServiceType" />
 
         <receiver
             android:name="com.application.sloggerlib.StartLoggingAlarmReceiver"

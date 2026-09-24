@@ -293,7 +293,14 @@ class SensorLoggingService: Service() {
     }
 
     private fun stopBLE() {
-        bleScanner.stop()
+        // Guarded like every other stop, and for a reason that bites in
+        // practice: a STOP intent can arrive at a service instance that never
+        // ran a session - the process was killed and Android delivered the
+        // intent to a fresh one - and then nothing here was ever initialized.
+        // Unguarded, that took the whole app down when the user pressed Stop.
+        if (this::bleScanner.isInitialized) {
+            bleScanner.stop()
+        }
     }
 
     private fun loadConfigFile() {

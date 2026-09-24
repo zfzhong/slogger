@@ -89,6 +89,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:text="@string/mag_label"
+                />
+
+            <Spinner
+                android:id="@+id/id_mag_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/mag_title"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:text="@string/ble_label"
                 />
 
